@@ -1,7 +1,7 @@
 Django OAuth2 Server
 ====================
 
-Implementation of OAuth2 Server for Django.
+Implementation of OAuth2 Server for Django (work in progress).
 
 Installation
 ------------
