@@ -105,7 +105,7 @@ http://localhost:8000/authorize/?response_type=code&client_id=testclient&redirec
 
 You should see a screen like this:
 
-![Authorization screen](https://github.com/JSainsburyPLC/jsid/blob/develop/images/authorization_screen.png)
+*TODO
 
 Click yes, you will be redirected to the redirect_uri and the authorization code will be in the query string. For example:
 
