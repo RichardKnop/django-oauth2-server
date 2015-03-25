@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 env:
-  - DJANGO=1.6 DB=postgres
+  - DJANGO=1.7 DB=postgres
 services:
   - rabbitmq
   - memcached
@@ -16,7 +16,7 @@ cache:
 install:
   - pip install -r requirements.txt
 before_script:
-  - psql -c 'create database foo;' -U postgres
+  - psql -c 'create database oauth2server;' -U postgres
   - cp oauth2server/proj/settings/local.example.py oauth2server/proj/settings/local.py
   - cd oauth2server
   - python manage.py syncdb --noinput
