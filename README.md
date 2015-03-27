@@ -47,10 +47,10 @@ Grant Types
 Client Credentials
 ------------------
 
-Insert a test client:
+Insert test data:
 
 ```
-insert into oauth_clients(id, client_identifier, client_secret, redirect_uri) values(1, 'testclient', '$2y$11$jDzY7PIFlO7zNYDud6WSkeujPLFo7B126Rbgx5UEZoPD8HoMBDhMK', '');
+$ python oauth2server/manage.py loaddata test_credentials
 ```
 
 Run the development web server:
@@ -75,8 +75,9 @@ You should get a response like:
 
 ```json
 {
+    "id": 1,
     "access_token": "d4827dfdc325d4c23e9fca5dfe5ffea5d45fc9e9",
-    "expires_in": 3600,
+    "expires_at": "2015-03-27T18:38:02.381671",
     "token_type": "Bearer",
     "scope": null
 }
@@ -85,16 +86,16 @@ You should get a response like:
 Authorization Code
 ------------------
 
-Insert a test client:
+Insert test data:
 
 ```
-insert into oauth_clients(id, client_identifier, client_secret, redirect_uri) values(1, 'testclient', '$2y$11$jDzY7PIFlO7zNYDud6WSkeujPLFo7B126Rbgx5UEZoPD8HoMBDhMK', '');
+$ python oauth2server/manage.py loaddata test_credentials
 ```
 
 Run the development web server:
 
 ```
-$ php -S localhost:8000 -t web web/index.php
+$ python oauth2server/manage.py runserver
 ```
 
 And you can now go to this page in your web browser:
@@ -105,7 +106,7 @@ http://localhost:8000/authorize/?response_type=code&client_id=testclient&redirec
 
 You should see a screen like this:
 
-*TODO
+![Authorization page screenshot](https://github.com/RichardKnop/django-oauth2-server/blob/master/assets/authorize_screenshot.png)
 
 Click yes, you will be redirected to the redirect_uri and the authorization code will be in the query string. For example:
 
@@ -123,27 +124,61 @@ You should get a response like:
 
 ```json
 {
+    "id": 1,
     "access_token": "1234f5adae8769978f64746176e7cdf37dc80ae0",
-    "expires_in": 3600,
+    "expires_at": "2015-03-27T18:38:02.381671",
     "token_type": "Bearer",
     "scope": null,
     "refresh_token": "37f723616531afda7dde38be361b9a315238bd9b"
 }
 ```
 
+Implicit
+--------
+
+Very similar to the authorization code but the token is returned in URL fragment.
+
+Insert test data:
+
+```
+$ python oauth2server/manage.py loaddata test_credentials
+```
+
+Run the development web server:
+
+```
+$ python oauth2server/manage.py runserver
+```
+
+And you can now go to this page in your web browser:
+
+```
+http://localhost:8080/authorize/?response_type=token&client_id=testclient&redirect_uri=https://www.example.com&state=somestate
+```
+
+You should see a screen like this:
+
+![Authorization page screenshot](https://github.com/RichardKnop/django-oauth2-server/blob/master/assets/authorize_screenshot.png)
+
+Click yes, you will be redirected to the redirect_uri and the access token code will be in the URL fragment. For example:
+
+```
+https://www.example.com#access_token=66b80fb9d6630705bcea1c9be0df2a5f7f7a52bf&expires_at=2015-03-27T18:38:02.381671&token_type=Bearer&state=somestate
+```
+
 User Credentials
 ----------------
 
-Insert a test client:
+Insert test data:
 
 ```
-insert into oauth_clients(id, client_identifier, client_secret, redirect_uri) values(1, 'testclient', '$2y$11$jDzY7PIFlO7zNYDud6WSkeujPLFo7B126Rbgx5UEZoPD8HoMBDhMK', '');
+$ python oauth2server/manage.py loaddata test_credentials
 ```
 
-Insert a test user:
+Run the development web server:
 
 ```
-insert into oauth_users(id, email, password) values(1, 'testuser@example.com', '$2y$11$jDzY7PIFlO7zNYDud6WSkeujPLFo7B126Rbgx5UEZoPD8HoMBDhMK');
+$ python oauth2server/manage.py runserver
 ```
 
 And you can now get a new access token:
@@ -156,8 +191,9 @@ You should get a response like:
 
 ```json
 {
+    "id": 1,
     "access_token": "673d6c58f9dc87f14a5f0cecd986d1ba78dda3a9",
-    "expires_in": 3600,
+    "expires_at": "2015-03-27T18:38:02.381671",
     "token_type": "Bearer",
     "scope": null,
     "refresh_token": "55697efd4b74c980f2c638602556115bc14ca931"
@@ -177,8 +213,9 @@ And you get a new access token:
 
 ```json
 {
+    "id": 1,
     "access_token": "bbd07e78ace597a681f85ede3daee174a9e0703c",
-    "expires_in": 3600,
+    "expires_at": "2015-03-27T18:38:02.381671",
     "token_type": "Bearer",
     "scope": null,
     "refresh_token":"5756f4fde22a0accf78279f8fd64258f22539dc4"

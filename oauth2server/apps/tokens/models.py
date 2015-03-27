@@ -6,35 +6,37 @@ from apps.credentials.models import (
 )
 
 
-class OAuthAccessToken(models.Model):
-    token = models.CharField(max_length=40, unique=True)
-    expires_at = models.DateField()
-    scope = models.CharField(max_length=50, default='')
+class OauthAbstractToken(models.Model):
+    expires_at = models.DateTimeField()
+    scope = models.CharField(max_length=50, null=True)
     client = models.ForeignKey(OAuthClient)
     user = models.ForeignKey(OAuthUser, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class OAuthAccessToken(OauthAbstractToken):
+    access_token = models.CharField(max_length=40, unique=True)
+
+    @property
+    def token_type(self):
+        return 'Bearer'
 
     def __unicode__(self):
         return self.token
 
 
-class OAuthAuthorizationCode(models.Model):
+class OAuthAuthorizationCode(OauthAbstractToken):
     code = models.CharField(max_length=40, unique=True)
-    expires_at = models.DateField()
-    redirect_uri = models.CharField(max_length=200, default='')
-    scope = models.CharField(max_length=50, default='')
-    client = models.ForeignKey(OAuthClient)
-    user = models.ForeignKey(OAuthUser, null=True)
+    redirect_uri = models.CharField(max_length=200, null=True)
 
     def __unicode__(self):
         return self.code
 
 
-class OAuthRefreshTokenToken(models.Model):
-    token = models.CharField(max_length=40, unique=True)
-    expires_at = models.DateField()
-    scope = models.CharField(max_length=50, default='')
-    client = models.ForeignKey(OAuthClient)
-    user = models.ForeignKey(OAuthUser, null=True)
+class OAuthRefreshTokenToken(OauthAbstractToken):
+    refresh_token = models.CharField(max_length=40, unique=True)
 
     def __unicode__(self):
         return self.token

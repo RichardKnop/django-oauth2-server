@@ -1,5 +1,6 @@
 Django==1.7.4
 djangorestframework==3.0.5
+mock==1.0.1
 passlib==1.6.2
 psycopg2==2.5.1
 py-bcrypt==0.4

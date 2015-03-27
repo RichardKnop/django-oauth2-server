@@ -25,3 +25,5 @@ if 'test' in sys.argv:
             'NAME':     'test_database.sqlite',
         },
     }
+
+DEBUG = True

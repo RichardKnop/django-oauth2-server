@@ -12,6 +12,8 @@ from django.core.validators import EmailValidator, ValidationError
 
 
 class OAuthCredentials(models.Model):
+    password = models.CharField(max_length=160)
+
     class Meta:
         abstract = True
 
@@ -22,9 +24,8 @@ class OAuthCredentials(models.Model):
             self.password = bcrypt.encrypt(self.password)
         super(OAuthCredentials, self).save(*args, **kwargs)
 
-    @staticmethod
-    def verify_password(raw_password, encrypted_password):
-        return bcrypt.verify(raw_password, encrypted_password)
+    def verify_password(self, raw_password):
+        return bcrypt.verify(raw_password, self.password)
 
 
 class OAuthUser(OAuthCredentials):
@@ -33,7 +34,6 @@ class OAuthUser(OAuthCredentials):
         unique=True,
         validators=[EmailValidator()],
     )
-    password = models.CharField(max_length=160)
 
     def __unicode__(self):
         return self.email
@@ -49,13 +49,12 @@ class OAuthUser(OAuthCredentials):
 
 
 class OAuthClient(OAuthCredentials):
-    identifier = models.CharField(
+    client_id = models.CharField(
         max_length=254,
         unique=True,
         validators=[EmailValidator()],
     )
-    password = models.CharField(max_length=160)
-    redirect_uri = models.CharField(max_length=200, default='')
+    redirect_uri = models.CharField(max_length=200, null=True)
 
     def __unicode__(self):
         return self.identifier

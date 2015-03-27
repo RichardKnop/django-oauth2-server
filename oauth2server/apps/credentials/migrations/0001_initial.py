@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name='OAuthClient',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('identifier', models.CharField(unique=True, max_length=254, validators=[django.core.validators.EmailValidator()])),
                 ('password', models.CharField(max_length=160)),
-                ('redirect_uri', models.CharField(default=b'', max_length=200)),
+                ('client_id', models.CharField(unique=True, max_length=254, validators=[django.core.validators.EmailValidator()])),
+                ('redirect_uri', models.CharField(max_length=200, null=True)),
             ],
             options={
                 'abstract': False,
@@ -28,8 +28,8 @@ class Migration(migrations.Migration):
             name='OAuthUser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('email', models.CharField(unique=True, max_length=254, validators=[django.core.validators.EmailValidator()])),
                 ('password', models.CharField(max_length=160)),
+                ('email', models.CharField(unique=True, max_length=254, validators=[django.core.validators.EmailValidator()])),
             ],
             options={
                 'abstract': False,

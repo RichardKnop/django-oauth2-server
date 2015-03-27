@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% load web_extras %}
+
+{% block content %}
+<div class="jumbotron">
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <p class="lead">Client <b>{{ client.client_id }}</b> would like to perform actions on your behalf</p>
+
+        {% for chunk in scopes.iteritems|chunk_evenly:3 %}
+        <div class="row">
+            {% for scope_id, scope_desc in chunk %}
+            <div class="col-md-4">
+                <p>
+                    <b><input type="checkbox" name="{{ form.scopes.name }}" value="{{ scope_id }}" checked> {{ scope_id }}</b>
+                    <br><small>{{ scope_desc }}</small>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <button class="btn btn-lg btn-block btn-success"
+                        name="{{ form.authorize.name }}"
+                        value="yes">Authorize</button>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-lg btn-block btn-danger"
+                        name="{{ form.authorize.name }}"
+                        value="no">Decline</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
