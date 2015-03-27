@@ -18,12 +18,12 @@ class ClientCredentialsTest(TestCase):
 
         response = self.api_client.post(
             path='/api/v1/tokens/',
-            data={'grant_type': 'client_credentials'},
-            HTTP_AUTHORIZATION='Basic: {}'.format(base64.encodestring('bogus:bogus'))
+            data={},
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('bogus:bogus'))
         )
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
-
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data['error'], 'invalid_client')
         self.assertEqual(response.data['error_description'],
@@ -35,7 +35,8 @@ class ClientCredentialsTest(TestCase):
         response = self.api_client.post(
             path='/api/v1/tokens/',
             data={},
-            HTTP_AUTHORIZATION='Basic: {}'.format(base64.encodestring('testclient:testpassword')),
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
         )
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
@@ -45,13 +46,31 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(response.data['error_description'],
                          'The grant type was not specified in the request')
 
+    def test_invalid_grant_type(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={'grant_type': 'bogus'},
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'invalid_request')
+        self.assertEqual(response.data['error_description'],
+                         'Invalid grant type')
+
     def test_success(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
 
         response = self.api_client.post(
             path='/api/v1/tokens/',
             data={'grant_type': 'client_credentials'},
-            HTTP_AUTHORIZATION='Basic: {}'.format(base64.encodestring('testclient:testpassword')),
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
         )
 
         access_token = OAuthAccessToken.objects.last()

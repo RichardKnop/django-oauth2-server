@@ -4,6 +4,7 @@ from apps.tokens.models import OAuthAccessToken
 
 
 class OAuthAccessTokenSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = OAuthAccessToken
         fields = (

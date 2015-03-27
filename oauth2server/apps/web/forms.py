@@ -9,6 +9,7 @@ except KeyError:
 
 
 class AuthorizeForm(forms.Form):
+
     authorize = forms.BooleanField()
     scopes = forms.MultipleChoiceField(
         choices=SCOPES, widget=forms.CheckboxSelectMultiple)

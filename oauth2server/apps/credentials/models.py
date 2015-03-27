@@ -12,6 +12,7 @@ from django.core.validators import EmailValidator, ValidationError
 
 
 class OAuthCredentials(models.Model):
+
     password = models.CharField(max_length=160)
 
     class Meta:
@@ -29,6 +30,7 @@ class OAuthCredentials(models.Model):
 
 
 class OAuthUser(OAuthCredentials):
+
     email = models.CharField(
         max_length=254,
         unique=True,
@@ -49,6 +51,7 @@ class OAuthUser(OAuthCredentials):
 
 
 class OAuthClient(OAuthCredentials):
+
     client_id = models.CharField(
         max_length=254,
         unique=True,

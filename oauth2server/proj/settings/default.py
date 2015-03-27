@@ -59,6 +59,8 @@ REST_FRAMEWORK = {
 
 OAUTH2_SERVER = {
     'ACCESS_TOKEN_LIFETIME': 3600,
+    'AUTH_CODE_LIFETIME': 3600,
+    'REFRESH_TOKEN_LIFETIME': 3600,
     'SCOPES': {
         'foo': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
         'bar': 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
