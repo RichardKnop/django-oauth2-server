@@ -16,6 +16,10 @@ class AuthorizeView(View):
 
     @method_decorator(validate_query_string)
     def dispatch(self, *args, **kwargs):
+        """
+        Decorating the dispatch method decorates all methods.
+        So both get and post will have the decorator applied.
+        """
         return super(AuthorizeView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):

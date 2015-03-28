@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('expires_at', models.DateTimeField()),
-                ('scope', models.CharField(max_length=50, null=True)),
+                ('scope', models.CharField(max_length=200, null=True)),
                 ('access_token', models.CharField(unique=True, max_length=40)),
                 ('client', models.ForeignKey(to='credentials.OAuthClient')),
                 ('user', models.ForeignKey(to='credentials.OAuthUser', null=True)),
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('expires_at', models.DateTimeField()),
-                ('scope', models.CharField(max_length=50, null=True)),
+                ('scope', models.CharField(max_length=200, null=True)),
                 ('code', models.CharField(unique=True, max_length=40)),
                 ('redirect_uri', models.CharField(max_length=200, null=True)),
                 ('client', models.ForeignKey(to='credentials.OAuthClient')),
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('expires_at', models.DateTimeField()),
-                ('scope', models.CharField(max_length=50, null=True)),
+                ('scope', models.CharField(max_length=200, null=True)),
                 ('refresh_token', models.CharField(unique=True, max_length=40)),
                 ('client', models.ForeignKey(to='credentials.OAuthClient')),
                 ('user', models.ForeignKey(to='credentials.OAuthUser', null=True)),

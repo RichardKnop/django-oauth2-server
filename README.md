@@ -19,47 +19,10 @@ Implementation of OAuth2 Server for Django. Feel free to fork this repository an
 Grant Types
 ===========
 
-Client Credentials
-------------------
-
-Insert test data:
-
-```
-$ python oauth2server/manage.py loaddata test_credentials
-```
-
-Run the development web server:
-
-```
-$ python oauth2server/manage.py runserver
-```
-
-And you can now get token either using HTTP Basic Authentication:
-
-```
-$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
-```
-
-Or using POST body:
-
-```
-$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&client_id=testclient&client_secret=testpassword'
-```
-
-You should get a response like:
-
-```json
-{
-    "id": 1,
-    "access_token": "d4827dfdc325d4c23e9fca5dfe5ffea5d45fc9e9",
-    "expires_at": "2015-03-27T18:38:02.381671",
-    "token_type": "Bearer",
-    "scope": null
-}
-```
-
 Authorization Code
 ------------------
+
+http://tools.ietf.org/html/rfc6749#section-4.1
 
 Insert test data:
 
@@ -91,6 +54,8 @@ https://www.example.com/?code=cd45169cf6575f76d789f55764cb751b4d08274d&state=som
 
 You can use it to get access token:
 
+http://tools.ietf.org/html/rfc6749#section-4.1.3
+
 ```
 $ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=authorization_code&code=cd45169cf6575f76d789f55764cb751b4d08274d'
 ```
@@ -110,6 +75,8 @@ You should get a response like:
 
 Implicit
 --------
+
+http://tools.ietf.org/html/rfc6749#section-4.2
 
 Very similar to the authorization code but the token is returned in URL fragment.
 
@@ -144,6 +111,8 @@ https://www.example.com#access_token=66b80fb9d6630705bcea1c9be0df2a5f7f7a52bf&ex
 User Credentials
 ----------------
 
+http://tools.ietf.org/html/rfc6749#section-4.3
+
 Insert test data:
 
 ```
@@ -172,6 +141,47 @@ You should get a response like:
     "token_type": "Bearer",
     "scope": null,
     "refresh_token": "55697efd4b74c980f2c638602556115bc14ca931"
+}
+```
+
+Client Credentials
+------------------
+
+http://tools.ietf.org/html/rfc6749#section-4.4
+
+Insert test data:
+
+```
+$ python oauth2server/manage.py loaddata test_credentials
+```
+
+Run the development web server:
+
+```
+$ python oauth2server/manage.py runserver
+```
+
+And you can now get token either using HTTP Basic Authentication:
+
+```
+$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
+```
+
+Or using POST body:
+
+```
+$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&client_id=testclient&client_secret=testpassword'
+```
+
+You should get a response like:
+
+```json
+{
+    "id": 1,
+    "access_token": "d4827dfdc325d4c23e9fca5dfe5ffea5d45fc9e9",
+    "expires_at": "2015-03-27T18:38:02.381671",
+    "token_type": "Bearer",
+    "scope": null
 }
 ```
 
@@ -244,11 +254,13 @@ OAUTH2_SERVER = {
     'ACCESS_TOKEN_LIFETIME': 3600,
     'AUTH_CODE_LIFETIME': 3600,
     'REFRESH_TOKEN_LIFETIME': 3600,
+    # http://tools.ietf.org/html/rfc6749#section-3.3
     'SCOPES': {
         'foo': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
         'bar': 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
         'qux': 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
     },
+    'DEFAULT_SCOPE': 'foo bar qux',
 }
 ```
 

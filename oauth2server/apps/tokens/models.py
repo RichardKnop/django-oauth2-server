@@ -11,20 +11,27 @@ from apps.credentials.models import (
 class OauthAbstractToken(models.Model):
 
     expires_at = models.DateTimeField()
-    scope = models.CharField(max_length=50, null=True)
+    scope = models.CharField(max_length=200, null=True)
     client = models.ForeignKey(OAuthClient)
     user = models.ForeignKey(OAuthUser, null=True)
 
     class Meta:
         abstract = True
 
+    @property
+    def expires_in(self):
+        now = timezone.now()
+        if now() >= self.expires_at:
+            return 0
+        return (self.expires_at - now).total_seconds()
+
     @classmethod
     def new_expires_at(cls):
         try:
-            code_lifetime = settings.OAUTH2_SERVER[cls.lifetime_setting]
+            lifetime = settings.OAUTH2_SERVER[cls.lifetime_setting]
         except KeyError:
-            code_lifetime = cls.default_lifetime
-        return timezone.now() + timezone.timedelta(seconds=code_lifetime)
+            lifetime = cls.default_lifetime
+        return timezone.now() + timezone.timedelta(seconds=lifetime)
 
 
 class OAuthAccessToken(OauthAbstractToken):

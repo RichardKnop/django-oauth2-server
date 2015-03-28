@@ -39,7 +39,7 @@ class CodeResponseType(AbstractResponseType):
             code=unicode(uuid.uuid4()),
             expires_at=OAuthAuthorizationCode.new_expires_at(),
             client=client,
-            scope=','.join(scopes),
+            scope=' '.join(scopes),
             redirect_uri=redirect_uri,
         )
         query_string = urllib.urlencode({
@@ -62,7 +62,7 @@ class ImplicitResponseType(AbstractResponseType):
             access_token=unicode(uuid.uuid4()),
             expires_at=OAuthAccessToken.new_expires_at(),
             client=client,
-            scope=','.join(scopes),
+            scope=' '.join(scopes),
         )
         return HttpResponseRedirect(
             '{}#access_token={}&expires_at={}'

@@ -115,7 +115,7 @@ class AuthorizationCodeTest(TestCase):
 
         auth_code = OAuthAuthorizationCode.objects.last()
         self.assertEqual(auth_code.redirect_uri, 'http://www.example.com')
-        self.assertEqual(auth_code.scope, 'foo,bar,qux')
+        self.assertEqual(auth_code.scope, 'foo bar qux')
 
         self.assertRedirects(
             response,
@@ -143,7 +143,7 @@ class AuthorizationCodeTest(TestCase):
         self.assertEqual(response.data['access_token'], access_token.access_token)
         self.assertEqual(response.data['expires_at'], access_token.expires_at.isoformat())
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(response.data['scope'], 'foo,bar,qux')
+        self.assertEqual(response.data['scope'], 'foo bar qux')
 
         # Auth code should be deleted once access token is returned
         self.assertEqual(OAuthAuthorizationCode.objects.count(), 0)
@@ -167,7 +167,7 @@ class AuthorizationCodeTest(TestCase):
 
         auth_code = OAuthAuthorizationCode.objects.last()
         self.assertEqual(auth_code.redirect_uri, 'http://www.example.com')
-        self.assertEqual(auth_code.scope, 'foo,bar,qux')
+        self.assertEqual(auth_code.scope, 'foo bar qux')
 
         self.assertRedirects(
             response,
