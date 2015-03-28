@@ -11,7 +11,7 @@ Implementation of OAuth2 Server for Django. Feel free to fork this repository an
     - [Implicit](https://github.com/RichardKnop/django-oauth2-server#implicit)
     - [User Credentials](https://github.com/RichardKnop/django-oauth2-server#user-credentials)
     - [Refresh Token](https://github.com/RichardKnop/django-oauth2-server#refresh-token)
-- [Resource Authentication](https://github.com/RichardKnop/django-oauth2-server#resource-authentication)
+- [Authentication](https://github.com/RichardKnop/django-oauth2-server#authentication)
 - [Contributing](https://github.com/RichardKnop/django-oauth2-server#contributing)
     - [Installation](https://github.com/RichardKnop/django-oauth2-server#installation)
     - [Configuration](https://github.com/RichardKnop/django-oauth2-server#configuration)
@@ -208,8 +208,8 @@ And you get a new access token:
 }
 ```
 
-Resource Authentication
-=======================
+Authentication
+==============
 
 Now that you have obtained an access token, you can make requests to protected resources.
 
