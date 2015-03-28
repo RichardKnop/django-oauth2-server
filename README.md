@@ -5,17 +5,16 @@ Django OAuth2 Server
 
 Implementation of OAuth2 Server for Django. Feel free to fork this repository and contribute.
 
-- [Contributing](https://github.com/RichardKnop/django-oauth2-server#contributing)
-    - [Installation](https://github.com/RichardKnop/django-oauth2-server#installation)
-    - [Configuration](https://github.com/RichardKnop/django-oauth2-server#configuration)
-    - [Running Tests](https://github.com/RichardKnop/django-oauth2-server#running-tests)
 - [Grant Types](https://github.com/RichardKnop/django-oauth2-server#grant-types)
     - [Client Credentials](https://github.com/RichardKnop/django-oauth2-server#client-credentials)
     - [Authorization Code](https://github.com/RichardKnop/django-oauth2-server#authorization-code)
     - [Implicit](https://github.com/RichardKnop/django-oauth2-server#implicit)
     - [User Credentials](https://github.com/RichardKnop/django-oauth2-server#user-credentials)
     - [Refresh Token](https://github.com/RichardKnop/django-oauth2-server#refresh-token)
-
+- [Contributing](https://github.com/RichardKnop/django-oauth2-server#contributing)
+    - [Installation](https://github.com/RichardKnop/django-oauth2-server#installation)
+    - [Configuration](https://github.com/RichardKnop/django-oauth2-server#configuration)
+    - [Running Tests](https://github.com/RichardKnop/django-oauth2-server#running-tests)
 
 Grant Types
 ===========
