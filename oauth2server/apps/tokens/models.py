@@ -8,12 +8,8 @@ from apps.credentials.models import (
 )
 
 
-class OauthAbstractToken(models.Model):
-
+class ExpiresMixin(models.Model):
     expires_at = models.DateTimeField()
-    scope = models.CharField(max_length=200, null=True)
-    client = models.ForeignKey(OAuthClient)
-    user = models.ForeignKey(OAuthUser, null=True)
 
     class Meta:
         abstract = True
@@ -37,9 +33,32 @@ class OauthAbstractToken(models.Model):
         return timezone.now() + timezone.timedelta(seconds=lifetime)
 
 
-class OAuthAccessToken(OauthAbstractToken):
+class TokenCodeMixin(models.Model):
+
+    scope = models.CharField(max_length=200, null=True)
+    client = models.ForeignKey(OAuthClient)
+    user = models.ForeignKey(OAuthUser, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class OAuthRefreshToken(ExpiresMixin):
+
+    refresh_token = models.CharField(max_length=40, unique=True)
+
+    def __unicode__(self):
+        return self.token
+
+    lifetime_setting = 'REFRESH_TOKEN_LIFETIME'
+    default_lifetime = 1209600  # 14 days
+
+
+class OAuthAccessToken(TokenCodeMixin, ExpiresMixin):
 
     access_token = models.CharField(max_length=40, unique=True)
+    refresh_token = models.OneToOneField(
+        OAuthRefreshToken, null=True, related_name='access_token')
 
     @property
     def token_type(self):
@@ -52,7 +71,7 @@ class OAuthAccessToken(OauthAbstractToken):
     default_lifetime = 3600
 
 
-class OAuthAuthorizationCode(OauthAbstractToken):
+class OAuthAuthorizationCode(TokenCodeMixin, ExpiresMixin):
 
     code = models.CharField(max_length=40, unique=True)
     redirect_uri = models.CharField(max_length=200, null=True)
@@ -62,14 +81,3 @@ class OAuthAuthorizationCode(OauthAbstractToken):
 
     lifetime_setting = 'AUTH_CODE_LIFETIME'
     default_lifetime = 3600
-
-
-class OAuthRefreshToken(OauthAbstractToken):
-
-    refresh_token = models.CharField(max_length=40, unique=True)
-
-    def __unicode__(self):
-        return self.token
-
-    lifetime_setting = 'REFRESH_TOKEN_LIFETIME'
-    default_lifetime = 1209600  # 14 days

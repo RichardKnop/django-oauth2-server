@@ -5,10 +5,28 @@ from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
 
 
-class AuthorizationCodeExpired(APIException):
+class ClientCredentialsRequiredException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_error = u'invalid_client'
+    default_detail = _(u'Client credentials were not found in the headers or body')
+
+
+class InvalidClientCredentialsException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_error = u'invalid_client'
+    default_detail = _(u'Invalid client credentials')
+
+
+class ExpiredAuthorizationCodeException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_error = u'access_denied'
     default_detail = _(u'Authorization code has expired')
+
+
+class ExpiredRefreshTokenException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'expired_token'
+    default_detail = _(u'Refresh token has expired')
 
 
 class GrantTypeRequiredException(APIException):
@@ -39,6 +57,12 @@ class PasswordRequiredException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_error = u'invalid_request'
     default_detail = _(u'The password parameter is required')
+
+
+class RefreshTokenRequiredException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'invalid_request'
+    default_detail = _(u'The refresh token parameter is required')
 
 
 class AccessTokenRequiredException(APIException):

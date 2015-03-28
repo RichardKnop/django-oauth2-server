@@ -4,7 +4,13 @@ from django.shortcuts import render
 from apps.credentials.models import OAuthClient
 
 
-def validate_query_string(view):
+def validate_request(view):
+    """
+    Validates that request contains all required data
+    :param view:
+    :return: _wrapper
+    """
+
     def _error_response(request, error, error_description):
         return HttpResponse(render(request, 'web/error.html', {
             'title': 'Error',
@@ -12,7 +18,7 @@ def validate_query_string(view):
             'error_description': error_description,
         }))
 
-    def wrapper(request, *args, **kwargs):
+    def _wrapper(request, *args, **kwargs):
         # First we check client_id and make sure it's valid
         try:
             request.client = OAuthClient.objects.get(
@@ -51,4 +57,4 @@ def validate_query_string(view):
                 error_description=u'The state parameter is required')
 
         return view(request, *args, **kwargs)
-    return wrapper
+    return _wrapper

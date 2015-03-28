@@ -1,5 +1,4 @@
 import base64
-from rest_framework.response import Response
 
 from apps.credentials.models import OAuthClient
 from apps.tokens.models import OAuthAccessToken
@@ -9,15 +8,17 @@ from proj.exceptions import (
     CodeRequiredException,
     UsernameRequiredException,
     PasswordRequiredException,
+    RefreshTokenRequiredException,
     AccessTokenRequiredException,
     InvalidAccessTokenException,
     ExpiredAccessTokenException,
     InsufficientScopeException,
+    ClientCredentialsRequiredException,
+    InvalidClientCredentialsException,
 )
 
 
 def authentication_required(scope):
-
     def _method_wrapper(view):
 
         def _check_access_token_in_header(request):
@@ -64,65 +65,22 @@ def authentication_required(scope):
     return _method_wrapper
 
 
-def client_credentials_required(view):
+def validate_request(view):
+    """
+    Validates that request contains all required data
+    :param view:
+    :return: _wrapper
+    """
 
-    def _check_client_credentials_in_header(request):
-        if not 'HTTP_AUTHORIZATION' in request.META:
-            return False
+    def _validate_grant_type(request):
+        """
+        Checks grant_type parameter and also performs checks on additional
+        parameters required by specific grant types.
+        Assigns grant_type to the request so we can use it later.
+        :param request:
+        :return:
+        """
 
-        auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(': ')
-        if auth_method.lower() != 'basic':
-            return False
-
-        client_id, client_secret = base64.b64decode(auth).split(':')
-        try:
-            client = OAuthClient.objects.get(client_id=client_id)
-        except OAuthClient.DoesNotExist:
-            return False
-
-        if not client.verify_password(client_secret):
-            return False
-
-        return client
-
-    def _check_client_credentials_in_post(request):
-        if 'client_id' not in request.POST:
-            return False
-        if 'client_secret' not in request.POST:
-            return False
-
-        client_id = request.POST.get('client_id')
-        client_secret = request.POST.get('client_secret')
-        client = OAuthClient.objects.get(client_id=client_id)
-
-        if not client.verify_password(client_secret):
-            return False
-
-        return client
-
-    def _wrapper(request, *args, **kwargs):
-        client = _check_client_credentials_in_header(request=request)
-        if not client:
-            client = _check_client_credentials_in_post(request=request)
-
-        if not client:
-            response = Response(data={
-                'error': u'invalid_client',
-                'error_description': u'Client credentials were not found'
-                                     u' in the headers or body',
-            }, status=401)
-            response['WWW-Authenticate'] = 'Basic realm="django-oauth2-server"'
-            return response
-
-        request.client = client
-        return view(request, *args, **kwargs)
-
-    return _wrapper
-
-
-def grant_type_required(view):
-
-    def _wrapper(request, *args, **kwargs):
         grant_type = request.POST.get('grant_type', None)
 
         if not grant_type:
@@ -131,22 +89,74 @@ def grant_type_required(view):
         valid_grant_types = (
             'client_credentials',
             'authorization_code',
-            'refresh_token',
             'password',
+            'refresh_token',
         )
         if grant_type not in valid_grant_types:
             raise InvalidGrantTypeException()
 
+        # authorization_code grant requires code parameter
         if grant_type == 'authorization_code' and 'code' not in request.POST:
             raise CodeRequiredException()
 
+        # password grant requires username parameter
         if grant_type == 'password' and 'username' not in request.POST:
             raise UsernameRequiredException()
 
+        # password grant requires password parameter
         if grant_type == 'password' and 'password' not in request.POST:
             raise PasswordRequiredException()
 
+        # refresh_token grant requires refresh_token parameter
+        if grant_type == 'refresh_token' and 'refresh_token' not in request.POST:
+            raise RefreshTokenRequiredException()
+
         request.grant_type = grant_type
+
+    def _extract_client(request):
+        """
+        Tries to extract client_id and client_secret from the request.
+        It first looks for Authorization header, then tries POST data.
+        Assigns client object to the request for later use.
+        :param request:
+        :return:
+        """
+        client_id, client_secret = None, None
+
+        # First, let's check Authorization header if present
+        if 'HTTP_AUTHORIZATION' in request.META:
+            auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(': ')
+            if auth_method.lower() == 'basic':
+                client_id, client_secret = base64.b64decode(auth).split(':')
+
+        # Fallback to POST
+        if not client_id and 'client_id' in request.POST:
+            client_id = request.POST['client_id']
+        if not client_secret and 'client_secret' in request.POST:
+            client_secret = request.POST['client_secret']
+
+        if not client_id or not client_secret:
+            raise ClientCredentialsRequiredException()
+
+        try:
+            client = OAuthClient.objects.get(client_id=client_id)
+        except OAuthClient.DoesNotExist:
+            raise InvalidClientCredentialsException()
+
+        if not client.verify_password(client_secret):
+            raise InvalidClientCredentialsException()
+
+        request.client = client
+
+    def _wrapper(request, *args, **kwargs):
+        _validate_grant_type(request=request)
+
+        # refresh_token grant does not require client data
+        if request.grant_type == 'refresh_token':
+            return view(request, *args, **kwargs)
+
+        _extract_client(request=request)
+
         return view(request, *args, **kwargs)
 
     return _wrapper

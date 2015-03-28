@@ -9,6 +9,7 @@ from django.utils import timezone
 from apps.tokens.models import (
     OAuthAuthorizationCode,
     OAuthAccessToken,
+    OAuthRefreshToken,
 )
 
 
@@ -126,6 +127,7 @@ class AuthorizationCodeTest(TestCase):
 
         # Now we should be able to get access token
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
 
         response = self.api_client.post(
             path='/api/v1/tokens/',
@@ -138,12 +140,15 @@ class AuthorizationCodeTest(TestCase):
         )
 
         access_token = OAuthAccessToken.objects.last()
+        refresh_token = OAuthRefreshToken.objects.last()
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['id'], access_token.pk)
         self.assertEqual(response.data['access_token'], access_token.access_token)
         self.assertEqual(response.data['expires_at'], access_token.expires_at.isoformat())
         self.assertEqual(response.data['token_type'], 'Bearer')
         self.assertEqual(response.data['scope'], 'foo bar qux')
+        self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)
 
         # Auth code should be deleted once access token is returned
         self.assertEqual(OAuthAuthorizationCode.objects.count(), 0)
@@ -181,6 +186,7 @@ class AuthorizationCodeTest(TestCase):
         auth_code.save()
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
 
         response = self.api_client.post(
             path='/api/v1/tokens/',
@@ -193,6 +199,7 @@ class AuthorizationCodeTest(TestCase):
         )
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['error'], u'access_denied')

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 
-from apps.web.decorators import validate_query_string
+from apps.web.decorators import validate_request
 from apps.web.responsetypes import factory
 from apps.web.forms import AuthorizeForm
 from apps.web import SCOPES
@@ -14,7 +14,7 @@ class AuthorizeView(View):
     initial = {}
     template_name = 'web/authorize.html'
 
-    @method_decorator(validate_query_string)
+    @method_decorator(validate_request)
     def dispatch(self, *args, **kwargs):
         """
         Decorating the dispatch method decorates all methods.

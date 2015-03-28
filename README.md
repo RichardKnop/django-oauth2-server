@@ -68,11 +68,11 @@ You should get a response like:
 ```json
 {
     "id": 1,
-    "access_token": "1234f5adae8769978f64746176e7cdf37dc80ae0",
-    "expires_at": "2015-03-27T18:38:02.381671",
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_at": "2015-03-28T20:12:55.319144",
     "token_type": "Bearer",
-    "scope": null,
-    "refresh_token": "37f723616531afda7dde38be361b9a315238bd9b"
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -139,11 +139,11 @@ You should get a response like:
 ```json
 {
     "id": 1,
-    "access_token": "673d6c58f9dc87f14a5f0cecd986d1ba78dda3a9",
-    "expires_at": "2015-03-27T18:38:02.381671",
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_at": "2015-03-28T20:12:55.319144",
     "token_type": "Bearer",
-    "scope": null,
-    "refresh_token": "55697efd4b74c980f2c638602556115bc14ca931"
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -181,10 +181,11 @@ You should get a response like:
 ```json
 {
     "id": 1,
-    "access_token": "d4827dfdc325d4c23e9fca5dfe5ffea5d45fc9e9",
-    "expires_at": "2015-03-27T18:38:02.381671",
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_at": "2015-03-28T20:12:55.319144",
     "token_type": "Bearer",
-    "scope": null
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -202,11 +203,11 @@ And you get a new access token:
 ```json
 {
     "id": 1,
-    "access_token": "bbd07e78ace597a681f85ede3daee174a9e0703c",
-    "expires_at": "2015-03-27T18:38:02.381671",
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_at": "2015-03-28T20:12:55.319144",
     "token_type": "Bearer",
-    "scope": null,
-    "refresh_token":"5756f4fde22a0accf78279f8fd64258f22539dc4"
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 

@@ -19,7 +19,6 @@ class Migration(migrations.Migration):
                 ('scope', models.CharField(max_length=200, null=True)),
                 ('access_token', models.CharField(unique=True, max_length=40)),
                 ('client', models.ForeignKey(to='credentials.OAuthClient')),
-                ('user', models.ForeignKey(to='credentials.OAuthUser', null=True)),
             ],
             options={
                 'abstract': False,
@@ -47,14 +46,23 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('expires_at', models.DateTimeField()),
-                ('scope', models.CharField(max_length=200, null=True)),
                 ('refresh_token', models.CharField(unique=True, max_length=40)),
-                ('client', models.ForeignKey(to='credentials.OAuthClient')),
-                ('user', models.ForeignKey(to='credentials.OAuthUser', null=True)),
             ],
             options={
                 'abstract': False,
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='oauthaccesstoken',
+            name='refresh_token',
+            field=models.OneToOneField(related_name='access_token', null=True, to='tokens.OAuthRefreshToken'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='oauthaccesstoken',
+            name='user',
+            field=models.ForeignKey(to='credentials.OAuthUser', null=True),
+            preserve_default=True,
         ),
     ]
