@@ -1,7 +1,5 @@
 import uuid
 
-from django.utils import timezone
-
 from apps.tokens.models import (
     OAuthAccessToken,
     OAuthAuthorizationCode,
@@ -65,7 +63,7 @@ class AuthorizationCodeGrantType(AbstractGrantType):
         self.auth_code = auth_code
 
     def grant(self):
-        if self.auth_code.expires_at < timezone.now():
+        if self.auth_code.is_expired():
             self.auth_code.delete()
             raise AuthorizationCodeExpired()
         access_token = OAuthAccessToken.objects.create(

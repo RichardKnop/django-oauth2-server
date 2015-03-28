@@ -41,6 +41,30 @@ class PasswordRequiredException(APIException):
     default_detail = _(u'The password parameter is required')
 
 
+class AccessTokenRequiredException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'invalid_request'
+    default_detail = _(u'The access token is required')
+
+
+class InvalidAccessTokenException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_error = u'invalid_token'
+    default_detail = u'The access token provided is invalid'
+
+
+class ExpiredAccessTokenException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_error = u'expired_token'
+    default_detail = u'The access token provided has expired'
+
+
+class InsufficientScopeException(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_error = u'insufficient_scope'
+    default_detail = u'The request requires higher privileges than provided by the access token'
+
+
 def custom_exception_handler(exc):
     """
     Formats REST exceptions like:

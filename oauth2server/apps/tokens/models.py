@@ -18,6 +18,9 @@ class OauthAbstractToken(models.Model):
     class Meta:
         abstract = True
 
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
     @property
     def expires_in(self):
         now = timezone.now()
