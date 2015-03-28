@@ -5,6 +5,8 @@ Django OAuth2 Server
 
 Implementation of OAuth2 Server for Django. Feel free to fork this repository and contribute.
 
+Written for Django 1.7 :)
+
 - [Grant Types](https://github.com/RichardKnop/django-oauth2-server#grant-types)
     - [Client Credentials](https://github.com/RichardKnop/django-oauth2-server#client-credentials)
     - [Authorization Code](https://github.com/RichardKnop/django-oauth2-server#authorization-code)
