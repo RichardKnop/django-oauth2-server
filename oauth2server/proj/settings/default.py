@@ -16,7 +16,6 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    # 'proj.middleware.JSONExceptionMiddleware',
 )
 
 TIME_ZONE = 'UTC'
@@ -54,5 +53,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'proj.exceptions.custom_exception_handler',
 }

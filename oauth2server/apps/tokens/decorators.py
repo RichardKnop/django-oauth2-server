@@ -2,6 +2,13 @@ import base64
 from rest_framework.response import Response
 
 from apps.credentials.models import OAuthClient
+from proj.exceptions import (
+    GrantTypeRequiredException,
+    InvalidGrantTypeException,
+    CodeRequiredException,
+    UsernameRequiredException,
+    PasswordRequiredException,
+)
 
 
 def client_credentials_required(view):
@@ -36,10 +43,7 @@ def grant_type_required(view):
         grant_type = request.POST.get('grant_type', None)
 
         if not grant_type:
-            return _error_response(
-                error=u'invalid_request',
-                error_description=u'The grant type was not specified in the request',
-            )
+            raise GrantTypeRequiredException()
 
         valid_grant_types = (
             'client_credentials',
@@ -48,28 +52,16 @@ def grant_type_required(view):
             'password',
         )
         if grant_type not in valid_grant_types:
-            return _error_response(
-                error=u'invalid_request',
-                error_description=u'Invalid grant type',
-            )
+            raise InvalidGrantTypeException()
 
         if grant_type == 'authorization_code' and 'code' not in request.POST:
-            return _error_response(
-                error=u'invalid_request',
-                error_description=u'The code parameter is required',
-            )
+            raise CodeRequiredException()
 
         if grant_type == 'password' and 'username' not in request.POST:
-            return _error_response(
-                error=u'invalid_request',
-                error_description=u'The username parameter is required',
-            )
+            raise UsernameRequiredException()
 
         if grant_type == 'password' and 'password' not in request.POST:
-            return _error_response(
-                error=u'invalid_request',
-                error_description=u'The password parameter is required',
-            )
+            raise PasswordRequiredException()
 
         request.grant_type = grant_type
 

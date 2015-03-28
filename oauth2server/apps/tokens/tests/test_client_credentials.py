@@ -25,9 +25,9 @@ class ClientCredentialsTest(TestCase):
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['error'], 'invalid_client')
+        self.assertEqual(response.data['error'], u'invalid_client')
         self.assertEqual(response.data['error_description'],
-                         'Client credentials were not found in the headers or body')
+                         u'Client credentials were not found in the headers or body')
 
     def test_missing_grant_type(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
@@ -42,9 +42,9 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['error'], 'invalid_request')
+        self.assertEqual(response.data['error'], u'invalid_request')
         self.assertEqual(response.data['error_description'],
-                         'The grant type was not specified in the request')
+                         u'The grant type was not specified in the request')
 
     def test_invalid_grant_type(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
@@ -59,9 +59,9 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['error'], 'invalid_request')
+        self.assertEqual(response.data['error'], u'invalid_request')
         self.assertEqual(response.data['error_description'],
-                         'Invalid grant type')
+                         u'Invalid grant type')
 
     def test_success(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
