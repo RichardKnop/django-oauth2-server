@@ -17,6 +17,12 @@ class InvalidClientCredentialsException(APIException):
     default_detail = _(u'Invalid client credentials')
 
 
+class InvalidUserCredentialsException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_error = u'invalid_user'
+    default_detail = _(u'Invalid user credentials')
+
+
 class ExpiredAuthorizationCodeException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_error = u'access_denied'
@@ -87,6 +93,18 @@ class InsufficientScopeException(APIException):
     status_code = status.HTTP_403_FORBIDDEN
     default_error = u'insufficient_scope'
     default_detail = u'The request requires higher privileges than provided by the access token'
+
+
+class AuthorizationCodeNotFoundException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'invalid_request'
+    default_detail = _(u'Authorization code not found')
+
+
+class RefreshTokenNotFoundException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_error = u'invalid_request'
+    default_detail = _(u'Refresh token not found')
 
 
 def custom_exception_handler(exc):

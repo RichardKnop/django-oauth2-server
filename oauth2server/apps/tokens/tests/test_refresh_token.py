@@ -16,6 +16,20 @@ class RefreshTokenTest(TestCase):
     def setUp(self):
         self.api_client = APIClient()
 
+    def test_refresh_token_not_found(self):
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': 'bogus',
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], u'invalid_request')
+        self.assertEqual(response.data['error_description'],
+                         u'Refresh token not found')
+
     def test_refresh_token(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
         self.assertEqual(OAuthRefreshToken.objects.count(), 0)

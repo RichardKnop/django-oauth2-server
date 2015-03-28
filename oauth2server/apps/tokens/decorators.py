@@ -1,7 +1,14 @@
 import base64
 
-from apps.credentials.models import OAuthClient
-from apps.tokens.models import OAuthAccessToken
+from apps.credentials.models import (
+    OAuthClient,
+    OAuthUser,
+)
+from apps.tokens.models import (
+    OAuthAuthorizationCode,
+    OAuthAccessToken,
+    OAuthRefreshToken,
+)
 from proj.exceptions import (
     GrantTypeRequiredException,
     InvalidGrantTypeException,
@@ -15,6 +22,9 @@ from proj.exceptions import (
     InsufficientScopeException,
     ClientCredentialsRequiredException,
     InvalidClientCredentialsException,
+    InvalidUserCredentialsException,
+    AuthorizationCodeNotFoundException,
+    RefreshTokenNotFoundException,
 )
 
 
@@ -77,6 +87,9 @@ def validate_request(view):
         Checks grant_type parameter and also performs checks on additional
         parameters required by specific grant types.
         Assigns grant_type to the request so we can use it later.
+
+        Also optionally assigns other objects based on specific grant such
+        as user, auth_code and refresh_token
         :param request:
         :return:
         """
@@ -110,6 +123,31 @@ def validate_request(view):
         # refresh_token grant requires refresh_token parameter
         if grant_type == 'refresh_token' and 'refresh_token' not in request.POST:
             raise RefreshTokenRequiredException()
+
+        if grant_type == 'authorization_code':
+            try:
+                request.auth_code = OAuthAuthorizationCode.objects.get(
+                    code=request.POST['code'])
+            except OAuthAuthorizationCode.DoesNotExist:
+                raise AuthorizationCodeNotFoundException()
+
+        if grant_type == 'password':
+            try:
+                user = OAuthUser.objects.get(email=request.POST['username'])
+            except OAuthUser.DoesNotExist:
+                raise InvalidUserCredentialsException()
+
+            if not user.verify_password(request.POST['password']):
+                raise InvalidUserCredentialsException()
+
+            request.user = user
+
+        if grant_type == 'refresh_token':
+            try:
+                request.refresh_token = OAuthRefreshToken.objects.get(
+                    refresh_token=request.POST['refresh_token'])
+            except OAuthRefreshToken.DoesNotExist:
+                raise RefreshTokenNotFoundException()
 
         request.grant_type = grant_type
 

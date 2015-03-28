@@ -4,8 +4,6 @@ from django.conf import settings
 
 from apps.tokens.models import (
     OAuthAccessToken,
-    OAuthAuthorizationCode,
-    OAuthUser,
     OAuthRefreshToken,
 )
 from proj.exceptions import (
@@ -21,19 +19,16 @@ def factory(request):
     if request.grant_type == 'authorization_code':
         return AuthorizationCodeGrantType(
             client=request.client,
-            auth_code=OAuthAuthorizationCode.objects.get(
-                code=request.POST['code']))
+            auth_code=request.auth_code)
 
     if request.grant_type == 'password':
         return UserCredentialsGrantType(
             client=request.client,
-            user=OAuthUser.objects.get(
-                email=request.POST['username']))
+            user=request.user)
 
     if request.grant_type == 'refresh_token':
         return RefreshTokenGrantType(
-            refresh_token=OAuthRefreshToken.objects.get(
-                refresh_token=request.POST['refresh_token']))
+            refresh_token=request.refresh_token)
 
 
 class ClientRequiredMixin(object):
