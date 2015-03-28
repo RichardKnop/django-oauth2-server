@@ -1,15 +1,11 @@
 from django import forms
 from django.conf import settings
 
-
-try:
-    SCOPES = [(k, v) for k, v in settings.OAUTH2_SERVER['SCOPES'].iteritems()]
-except KeyError:
-    SCOPES = ()
+from apps.web import SCOPE_CHOICES
 
 
 class AuthorizeForm(forms.Form):
 
     authorize = forms.BooleanField()
     scopes = forms.MultipleChoiceField(
-        choices=SCOPES, widget=forms.CheckboxSelectMultiple)
+        choices=SCOPE_CHOICES, widget=forms.CheckboxSelectMultiple)

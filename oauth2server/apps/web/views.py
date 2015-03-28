@@ -1,11 +1,11 @@
 from django.views.generic import View
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.conf import settings
 from django.utils.decorators import method_decorator
 
 from apps.web.decorators import validate_query_string
 from apps.web.forms import AuthorizeForm
+from apps.web import SCOPES
 
 
 class AuthorizeView(View):
@@ -36,8 +36,5 @@ class AuthorizeView(View):
 
     def _render(self, request, form):
         return HttpResponse(render(request, self.template_name, {
-            'title': 'Authorize',
-            'client': request.client,
-            'form': form,
-            'scopes': settings.OAUTH2_SERVER['SCOPES'],
-        }))
+            'title': 'Authorize', 'client': request.client,
+            'form': form, 'scopes': SCOPES,}))
