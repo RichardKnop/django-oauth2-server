@@ -51,6 +51,20 @@ def grant_type_required(view):
             }, status=400)
             return response
 
+        if grant_type == 'password' and 'username' not in request.POST:
+            response = Response(data={
+                'error': u'invalid_request',
+                'error_description': u'The username parameter is required',
+            }, status=400)
+            return response
+
+        if grant_type == 'password' and 'password' not in request.POST:
+            response = Response(data={
+                'error': u'invalid_request',
+                'error_description': u'The password parameter is required',
+            }, status=400)
+            return response
+
         request.grant_type = factory(
             grant_type=grant_type, request=request)
 

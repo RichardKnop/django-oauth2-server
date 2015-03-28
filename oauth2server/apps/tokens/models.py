@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
 
 from apps.credentials.models import (
     OAuthClient,
@@ -16,6 +18,14 @@ class OauthAbstractToken(models.Model):
     class Meta:
         abstract = True
 
+    @classmethod
+    def new_expires_at(cls):
+        try:
+            code_lifetime = settings.OAUTH2_SERVER[cls.lifetime_setting]
+        except KeyError:
+            code_lifetime = cls.default_lifetime
+        return timezone.now() + timezone.timedelta(seconds=code_lifetime)
+
 
 class OAuthAccessToken(OauthAbstractToken):
 
@@ -28,6 +38,9 @@ class OAuthAccessToken(OauthAbstractToken):
     def __unicode__(self):
         return self.token
 
+    lifetime_setting = 'ACCESS_TOKEN_LIFETIME'
+    default_lifetime = 3600
+
 
 class OAuthAuthorizationCode(OauthAbstractToken):
 
@@ -37,6 +50,9 @@ class OAuthAuthorizationCode(OauthAbstractToken):
     def __unicode__(self):
         return self.code
 
+    lifetime_setting = 'AUTH_CODE_LIFETIME'
+    default_lifetime = 3600
+
 
 class OAuthRefreshToken(OauthAbstractToken):
 
@@ -44,3 +60,6 @@ class OAuthRefreshToken(OauthAbstractToken):
 
     def __unicode__(self):
         return self.token
+
+    lifetime_setting = 'REFRESH_TOKEN_LIFETIME'
+    default_lifetime = 1209600  # 14 days

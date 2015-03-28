@@ -95,6 +95,8 @@ class ClientCredentialsTest(TestCase):
         )
 
         access_token = OAuthAccessToken.objects.last()
+        self.assertEqual(access_token.client.client_id, 'testclient')
+        self.assertIsNone(access_token.user)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['id'], access_token.pk)

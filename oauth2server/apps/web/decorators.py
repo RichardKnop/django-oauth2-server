@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from apps.credentials.models import OAuthClient
+from apps.web.responsetypes import factory
 
 
 def validate_query_string(view):
@@ -39,5 +40,6 @@ def validate_query_string(view):
                 'error_description': error_description,
             }))
 
+        request.response_type = factory(request.response_type)
         return view(request, *args, **kwargs)
     return wrapper

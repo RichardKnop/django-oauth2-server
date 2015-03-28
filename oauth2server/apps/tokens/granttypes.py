@@ -1,11 +1,9 @@
 import uuid
 
-from django.conf import settings
-from django.utils import timezone
-
 from apps.tokens.models import (
     OAuthAccessToken,
     OAuthAuthorizationCode,
+    OAuthUser,
 )
 
 
@@ -19,23 +17,17 @@ def factory(grant_type, request):
             auth_code=OAuthAuthorizationCode.objects.get(
                 code=request.POST['code']))
 
+    if grant_type == 'password':
+        return UserCredentials(
+            client=request.client,
+            user=OAuthUser.objects.get(
+                email=request.POST['username']))
+
 
 class AbstractGrantType(object):
 
     def __init__(self, client):
         self.client = client
-
-    @property
-    def token_lifetime(self):
-        try:
-            return settings.OAUTH2_SERVER['ACCESS_TOKEN_LIFETIME']
-        except KeyError:
-            return 3600
-
-    @property
-    def expires_at(self):
-        return timezone.now() \
-            + timezone.timedelta(seconds=self.token_lifetime)
 
 
 class ClientCredentials(AbstractGrantType):
@@ -43,8 +35,23 @@ class ClientCredentials(AbstractGrantType):
     def grant(self):
         return OAuthAccessToken.objects.create(
             access_token=unicode(uuid.uuid4()),
-            expires_at=self.expires_at,
+            expires_at=OAuthAccessToken.new_expires_at(),
             client=self.client,
+        )
+
+
+class UserCredentials(AbstractGrantType):
+
+    def __init__(self, client, user):
+        super(UserCredentials, self).__init__(client=client)
+        self.user = user
+
+    def grant(self):
+        return OAuthAccessToken.objects.create(
+            access_token=unicode(uuid.uuid4()),
+            expires_at=OAuthAccessToken.new_expires_at(),
+            client=self.client,
+            user=self.user,
         )
 
 
@@ -57,7 +64,7 @@ class AuthorizationCode(AbstractGrantType):
     def grant(self):
         access_token = OAuthAccessToken.objects.create(
             access_token=unicode(uuid.uuid4()),
-            expires_at=self.expires_at,
+            expires_at=OAuthAccessToken.new_expires_at(),
             client=self.client,
             scope=self.auth_code.scope,
         )

@@ -60,4 +60,4 @@ class OAuthClient(OAuthCredentials):
     redirect_uri = models.CharField(max_length=200, null=True)
 
     def __unicode__(self):
-        return self.identifier
+        return self.client_id
