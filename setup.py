@@ -9,7 +9,7 @@ setup(
     license='LICENSE.txt',
     long_description=open('README.md').read(),
     install_requires=[
-        'Django==1.7.4',
+        'Django==1.7.7',
         'djangorestframework==3.0.5',
         'passlib==1.6.2',
         'psycopg2==2.5.1',

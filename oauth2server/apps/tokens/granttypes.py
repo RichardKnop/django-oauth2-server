@@ -7,19 +7,19 @@ from apps.tokens.models import (
 )
 
 
-def factory(grant_type, request):
+def factory(grant_type, client, request):
     if grant_type == 'client_credentials':
-        return ClientCredentials(client=request.client)
+        return ClientCredentialsGrantType(client=client)
 
     if grant_type == 'authorization_code':
-        return AuthorizationCode(
-            client=request.client,
+        return AuthorizationCodeGrantType(
+            client=client,
             auth_code=OAuthAuthorizationCode.objects.get(
                 code=request.POST['code']))
 
     if grant_type == 'password':
-        return UserCredentials(
-            client=request.client,
+        return UserCredentialsGrantType(
+            client=client,
             user=OAuthUser.objects.get(
                 email=request.POST['username']))
 
@@ -30,7 +30,7 @@ class AbstractGrantType(object):
         self.client = client
 
 
-class ClientCredentials(AbstractGrantType):
+class ClientCredentialsGrantType(AbstractGrantType):
 
     def grant(self):
         return OAuthAccessToken.objects.create(
@@ -40,10 +40,10 @@ class ClientCredentials(AbstractGrantType):
         )
 
 
-class UserCredentials(AbstractGrantType):
+class UserCredentialsGrantType(AbstractGrantType):
 
     def __init__(self, client, user):
-        super(UserCredentials, self).__init__(client=client)
+        super(UserCredentialsGrantType, self).__init__(client=client)
         self.user = user
 
     def grant(self):
@@ -55,10 +55,10 @@ class UserCredentials(AbstractGrantType):
         )
 
 
-class AuthorizationCode(AbstractGrantType):
+class AuthorizationCodeGrantType(AbstractGrantType):
 
     def __init__(self, client, auth_code):
-        super(AuthorizationCode, self).__init__(client=client)
+        super(AuthorizationCodeGrantType, self).__init__(client=client)
         self.auth_code = auth_code
 
     def grant(self):

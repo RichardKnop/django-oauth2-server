@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 
 from apps.web import SCOPE_CHOICES
 

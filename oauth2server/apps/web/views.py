@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 
 from apps.web.decorators import validate_query_string
+from apps.web.responsetypes import factory
 from apps.web.forms import AuthorizeForm
 from apps.web import SCOPES
 
@@ -26,12 +27,12 @@ class AuthorizeView(View):
         if not form.is_valid():
             return self._render(request=request, form=form)
 
-        return request.response_type.process(
+        return factory(response_type=request.response_type).process(
             client=request.client,
             authorized=form.cleaned_data['authorize'],
             scopes=form.cleaned_data['scopes'],
-            redirect_uri=request.GET['redirect_uri'],
-            state=request.GET['state'],
+            redirect_uri=request.redirect_uri,
+            state=request.state,
         )
 
     def _render(self, request, form):

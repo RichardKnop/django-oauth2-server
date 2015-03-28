@@ -2,8 +2,6 @@ import base64
 from rest_framework.response import Response
 
 from apps.credentials.models import OAuthClient
-from apps.tokens.models import OAuthAuthorizationCode
-from apps.tokens.granttypes import factory
 
 
 def client_credentials_required(view):
@@ -15,7 +13,8 @@ def client_credentials_required(view):
         if not client:
             response = Response(data={
                 'error': u'invalid_client',
-                'error_description': u'Client credentials were not found in the headers or body',
+                'error_description': u'Client credentials were not found'
+                                     u' in the headers or body',
             }, status=401)
             response['WWW-Authenticate'] = 'Basic realm="django-oauth2-server"'
             return response
@@ -27,46 +26,52 @@ def client_credentials_required(view):
 
 
 def grant_type_required(view):
+    def _error_response(error, error_description):
+        return Response(data={
+            'error': error,
+            'error_description': error_description,
+        }, status=400)
+
     def wrapper(request, *args, **kwargs):
         grant_type = request.POST.get('grant_type', None)
-        if not grant_type:
-            response = Response(data={
-                'error': u'invalid_request',
-                'error_description': u'The grant type was not specified in the request',
-            }, status=400)
-            return response
 
-        if grant_type not in('client_credentials', 'authorization_code',
-                             'refresh_token', 'password'):
-            response = Response(data={
-                'error': u'invalid_request',
-                'error_description': u'Invalid grant type',
-            }, status=400)
-            return response
+        if not grant_type:
+            return _error_response(
+                error=u'invalid_request',
+                error_description=u'The grant type was not specified in the request',
+            )
+
+        valid_grant_types = (
+            'client_credentials',
+            'authorization_code',
+            'refresh_token',
+            'password',
+        )
+        if grant_type not in valid_grant_types:
+            return _error_response(
+                error=u'invalid_request',
+                error_description=u'Invalid grant type',
+            )
 
         if grant_type == 'authorization_code' and 'code' not in request.POST:
-            response = Response(data={
-                'error': u'invalid_request',
-                'error_description': u'The code parameter is required',
-            }, status=400)
-            return response
+            return _error_response(
+                error=u'invalid_request',
+                error_description=u'The code parameter is required',
+            )
 
         if grant_type == 'password' and 'username' not in request.POST:
-            response = Response(data={
-                'error': u'invalid_request',
-                'error_description': u'The username parameter is required',
-            }, status=400)
-            return response
+            return _error_response(
+                error=u'invalid_request',
+                error_description=u'The username parameter is required',
+            )
 
         if grant_type == 'password' and 'password' not in request.POST:
-            response = Response(data={
-                'error': u'invalid_request',
-                'error_description': u'The password parameter is required',
-            }, status=400)
-            return response
+            return _error_response(
+                error=u'invalid_request',
+                error_description=u'The password parameter is required',
+            )
 
-        request.grant_type = factory(
-            grant_type=grant_type, request=request)
+        request.grant_type = grant_type
 
         return view(request, *args, **kwargs)
     return wrapper

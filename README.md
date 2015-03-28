@@ -3,43 +3,19 @@
 Django OAuth2 Server
 ====================
 
-Implementation of OAuth2 Server for Django (work in progress).
+Implementation of OAuth2 Server for Django. Feel free to fork this repository and contribute.
 
-Installation
-------------
+- [Contributing](https://github.com/RichardKnop/django-oauth2-server#contributing)
+    - [Installation](https://github.com/RichardKnop/django-oauth2-server#installation)
+    - [Configuration](https://github.com/RichardKnop/django-oauth2-server#configuration)
+    - [Running Tests](https://github.com/RichardKnop/django-oauth2-server#running-tests)
+- [Grant Types](https://github.com/RichardKnop/django-oauth2-server#grant-types)
+    - [Client Credentials](https://github.com/RichardKnop/django-oauth2-server#client-credentials)
+    - [Authorization Code](https://github.com/RichardKnop/django-oauth2-server#authorization-code)
+    - [Implicit](https://github.com/RichardKnop/django-oauth2-server#implicit)
+    - [User Credentials](https://github.com/RichardKnop/django-oauth2-server#user-credentials)
+    - [Refresh Token](https://github.com/RichardKnop/django-oauth2-server#refresh-token)
 
-Create a virtual environment:
-
-```
-$ virtualenv venv
-$ source venv/bin/activate
-```
-
-Install dependencies:
-
-```
-$ pip install -r requirements.txt
-```
-
-Create a local.py file and insert correct configuration details:
-
-```
-$ cp oauth2server/proj/settings/local.example.py oauth2server/proj/settings/local.py
-$ nano cp oauth2server/proj/settings/local.py
-```
-
-Run the migrations:
-
-```
-$ python oauth2server/manage.py migrate
-```
-
-Running Tests
--------------
-
-```
-$ python oauth2server/manage.py test
-```
 
 Grant Types
 ===========
@@ -221,3 +197,67 @@ And you get a new access token:
     "refresh_token":"5756f4fde22a0accf78279f8fd64258f22539dc4"
 }
 ```
+
+Contributing
+============
+
+In order to contribute to this project, fork it and make a pull request. I will review and accept it.
+
+All tests must be passwing in order for the pull request to be accepted.
+
+Installation
+------------
+
+Clone the repository:
+
+```
+$ git clone https://github.com/RichardKnop/django-oauth2-server.git
+```
+
+Create a virtual environment and install requirements:
+
+```
+$ virtualenv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+```
+
+Create a local.py file and insert correct configuration details:
+
+```
+$ cp oauth2server/proj/settings/local.example.py oauth2server/proj/settings/local.py
+$ nano cp oauth2server/proj/settings/local.py
+```
+
+Sync the database:
+
+```
+$ python oauth2server/manage.py syncdb
+```
+
+Configuration
+-------------
+
+These are the current configuration options: You can configure lifetime of tokens and codes (in seconds) and also set authorization scope.
+
+```python
+OAUTH2_SERVER = {
+    'ACCESS_TOKEN_LIFETIME': 3600,
+    'AUTH_CODE_LIFETIME': 3600,
+    'REFRESH_TOKEN_LIFETIME': 3600,
+    'SCOPES': {
+        'foo': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        'bar': 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
+        'qux': 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
+    },
+}
+```
+
+Running Tests
+-------------
+
+```
+$ python oauth2server/manage.py test
+```
+
+Functional tests are using SQLite database for performance reasons.

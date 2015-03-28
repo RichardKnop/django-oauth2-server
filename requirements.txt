@@ -1,4 +1,4 @@
-Django==1.7.4
+Django==1.7.7
 djangorestframework==3.0.5
 mock==1.0.1
 passlib==1.6.2
