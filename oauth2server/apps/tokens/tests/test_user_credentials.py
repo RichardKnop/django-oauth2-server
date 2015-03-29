@@ -18,6 +18,50 @@ class UserCredentialsTest(TestCase):
     def setUp(self):
         self.api_client = APIClient()
 
+    def test_missing_client_credentials(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'password',
+                'username': 'john@doe.com',
+                'password': 'testpassword',
+            },
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['error'], u'invalid_client')
+        self.assertEqual(response.data['error_description'],
+                         u'Client credentials were not found in the headers or body')
+
+    def test_invalid_client_credentials(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'password',
+                'username': 'john@doe.com',
+                'password': 'testpassword',
+            },
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('bogus:bogus')),
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['error'], u'invalid_client')
+        self.assertEqual(response.data['error_description'],
+                         u'Invalid client credentials')
+
     def test_success(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
         self.assertEqual(OAuthRefreshToken.objects.count(), 0)

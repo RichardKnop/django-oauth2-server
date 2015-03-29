@@ -30,7 +30,36 @@ class OAuthCredentials(models.Model):
 
 
 class OAuthUser(OAuthCredentials):
+    """
+    A user
 
+    >>> # Check that password is converted to a hash upon saving
+    >>> user = OAuthUser.objects.create(
+    ...     email="foo@example.com",
+    ...     password="password",
+    ... )
+    >>> user.verify_password("password")
+    True
+    >>> user.verify_password("bogus")
+    False
+    >>> # Check that password is not hashed again when its value did not change
+    >>> user.save()
+    >>> user.verify_password("password")
+    True
+    >>> # Check that password is hashed again when its value changed
+    >>> user.password = "$this_is_my_new_password"
+    >>> user.save()
+    >>> user.verify_password("$this_is_my_new_password")
+    True
+    >>> # Test email case sensitivity
+    >>> OAuthUser(
+    ...     email='FoO@example.com',
+    ...     password='password',
+    ... ).full_clean()
+    Traceback (most recent call last):
+        ...
+    ValidationError: {'__all__': [u'Email not unique']}
+    """
     email = models.CharField(
         max_length=254,
         unique=True,
@@ -51,7 +80,28 @@ class OAuthUser(OAuthCredentials):
 
 
 class OAuthClient(OAuthCredentials):
+    """
+    A client
 
+    >>> # Check that secret is converted to a hash upon saving
+    >>> client = OAuthClient.objects.create(
+    ...     client_id="fooclient",
+    ...     password="password",
+    ... )
+    >>> client.verify_password("password")
+    True
+    >>> client.verify_password("bogus")
+    False
+    >>> # Check that secret is not hashed again when its value did not change
+    >>> client.save()
+    >>> client.verify_password("password")
+    True
+    >>> # Check that secret is hashed again when its value changed
+    >>> client.password = "$this_is_my_new_password"
+    >>> client.save()
+    >>> client.verify_password("$this_is_my_new_password")
+    True
+    """
     client_id = models.CharField(
         max_length=254,
         unique=True,

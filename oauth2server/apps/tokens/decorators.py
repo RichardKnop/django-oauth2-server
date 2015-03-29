@@ -189,10 +189,6 @@ def validate_request(view):
     def _wrapper(request, *args, **kwargs):
         _validate_grant_type(request=request)
 
-        # refresh_token grant does not require client data
-        if request.grant_type == 'refresh_token':
-            return view(request, *args, **kwargs)
-
         _extract_client(request=request)
 
         return view(request, *args, **kwargs)

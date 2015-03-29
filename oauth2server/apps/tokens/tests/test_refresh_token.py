@@ -1,3 +1,5 @@
+import base64
+
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.test import TestCase
@@ -11,10 +13,26 @@ from apps.tokens.models import (
 
 class RefreshTokenTest(TestCase):
 
-    fixtures = ['test_credentials']
+    fixtures = [
+        'test_credentials',
+        'test_tokens',
+    ]
 
     def setUp(self):
         self.api_client = APIClient()
+
+    def test_refresh_token_missing(self):
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'refresh_token',
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], u'invalid_request')
+        self.assertEqual(response.data['error_description'],
+                         u'The refresh token parameter is required')
 
     def test_refresh_token_not_found(self):
         response = self.api_client.post(
@@ -30,17 +48,51 @@ class RefreshTokenTest(TestCase):
         self.assertEqual(response.data['error_description'],
                          u'Refresh token not found')
 
-    def test_refresh_token(self):
-        self.assertEqual(OAuthAccessToken.objects.count(), 0)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+    def test_missing_client_credentials(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 1)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 1)
 
         response = self.api_client.post(
             path='/api/v1/tokens/',
             data={
-                'grant_type': 'client_credentials',
-                'client_id': 'testclient',
-                'client_secret': 'testpassword',
+                'grant_type': 'refresh_token',
+                'refresh_token': '6fd8d272-375a-4d8a-8d0f-43367dc8b791',
             },
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 1)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 1)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['error'], u'invalid_client')
+        self.assertEqual(response.data['error_description'],
+                         u'Client credentials were not found in the headers or body')
+
+    def test_invalid_client_credentials(self):
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': '6fd8d272-375a-4d8a-8d0f-43367dc8b791',
+            },
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('bogus:bogus')),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['error'], u'invalid_client')
+        self.assertEqual(response.data['error_description'],
+                         u'Invalid client credentials')
+
+    def test_refresh_token(self):
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': '6fd8d272-375a-4d8a-8d0f-43367dc8b791',
+            },
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
         )
 
         self.assertEqual(OAuthAccessToken.objects.count(), 1)
@@ -48,30 +100,14 @@ class RefreshTokenTest(TestCase):
         access_token = OAuthAccessToken.objects.last()
         refresh_token = OAuthRefreshToken.objects.last()
 
-        self.assertEqual(access_token.refresh_token, refresh_token)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        response = self.api_client.post(
-            path='/api/v1/tokens/',
-            data={
-                'grant_type': 'refresh_token',
-                'refresh_token': refresh_token.refresh_token,
-            },
-        )
-
-        self.assertEqual(OAuthAccessToken.objects.count(), 1)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 1)
-        new_access_token = OAuthAccessToken.objects.last()
-        new_refresh_token = OAuthRefreshToken.objects.last()
-
-        self.assertNotEqual(access_token, new_access_token)
-        self.assertNotEqual(refresh_token, new_refresh_token)
+        self.assertNotEqual(access_token, '00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c')
+        self.assertNotEqual(refresh_token, '6fd8d272-375a-4d8a-8d0f-43367dc8b791')
 
         self.assertEqual(access_token.refresh_token, refresh_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['id'], new_access_token.pk)
-        self.assertEqual(response.data['access_token'], new_access_token.access_token)
-        self.assertEqual(response.data['expires_at'], new_access_token.expires_at.isoformat())
+        self.assertEqual(response.data['id'], access_token.pk)
+        self.assertEqual(response.data['access_token'], access_token.access_token)
+        self.assertEqual(response.data['expires_at'], access_token.expires_at.isoformat())
         self.assertEqual(response.data['token_type'], 'Bearer')
         self.assertEqual(response.data['scope'], settings.OAUTH2_SERVER['DEFAULT_SCOPE'])
-        self.assertEqual(response.data['refresh_token'], new_refresh_token.refresh_token)
+        self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)

@@ -1,0 +1,21 @@
+[
+    {
+        "model": "tokens.OAuthRefreshToken",
+        "pk": 1,
+        "fields": {
+            "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791",
+            "expires_at": "2050-03-28T20:12:55.319144"
+        }
+    },
+    {
+        "model": "tokens.OAuthAccessToken",
+        "pk": 1,
+        "fields": {
+            "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+            "expires_at": "2050-03-28T20:12:55.319144",
+            "scope": "foo bar qux",
+            "refresh_token": "1",
+            "client": 1
+        }
+    }
+]

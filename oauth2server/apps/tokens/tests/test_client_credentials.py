@@ -18,6 +18,40 @@ class ClientCredentialsTest(TestCase):
     def setUp(self):
         self.api_client = APIClient()
 
+    def test_missing_grant_type(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={},
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], u'invalid_request')
+        self.assertEqual(response.data['error_description'],
+                         u'The grant type was not specified in the request')
+
+    def test_invalid_grant_type(self):
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={'grant_type': 'bogus'},
+        )
+
+        self.assertEqual(OAuthAccessToken.objects.count(), 0)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], u'invalid_request')
+        self.assertEqual(response.data['error_description'],
+                         u'Invalid grant type')
+
     def test_missing_credentials(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
         self.assertEqual(OAuthRefreshToken.objects.count(), 0)
@@ -43,7 +77,7 @@ class ClientCredentialsTest(TestCase):
             path='/api/v1/tokens/',
             data={'grant_type': 'client_credentials'},
             HTTP_AUTHORIZATION='Basic: {}'.format(
-                base64.encodestring('bogus:bogus'))
+                base64.encodestring('bogus:bogus')),
         )
 
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
@@ -53,44 +87,6 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(response.data['error'], u'invalid_client')
         self.assertEqual(response.data['error_description'],
                          u'Invalid client credentials')
-
-    def test_missing_grant_type(self):
-        self.assertEqual(OAuthAccessToken.objects.count(), 0)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
-
-        response = self.api_client.post(
-            path='/api/v1/tokens/',
-            data={},
-            HTTP_AUTHORIZATION='Basic: {}'.format(
-                base64.encodestring('testclient:testpassword')),
-        )
-
-        self.assertEqual(OAuthAccessToken.objects.count(), 0)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['error'], u'invalid_request')
-        self.assertEqual(response.data['error_description'],
-                         u'The grant type was not specified in the request')
-
-    def test_invalid_grant_type(self):
-        self.assertEqual(OAuthAccessToken.objects.count(), 0)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
-
-        response = self.api_client.post(
-            path='/api/v1/tokens/',
-            data={'grant_type': 'bogus'},
-            HTTP_AUTHORIZATION='Basic: {}'.format(
-                base64.encodestring('testclient:testpassword')),
-        )
-
-        self.assertEqual(OAuthAccessToken.objects.count(), 0)
-        self.assertEqual(OAuthRefreshToken.objects.count(), 0)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['error'], u'invalid_request')
-        self.assertEqual(response.data['error_description'],
-                         u'Invalid grant type')
 
     def test_success(self):
         self.assertEqual(OAuthAccessToken.objects.count(), 0)
