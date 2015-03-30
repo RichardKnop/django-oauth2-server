@@ -123,27 +123,24 @@ def validate_request(view):
                 auth_code = request.POST['code']
             except KeyError:
                 try:
-                    auth_code = request.POST['code']
+                    auth_code = request.GET['code']
                 except KeyError:
                     raise CodeRequiredException()
 
-        # password grant requires username parameter
+        # password grant requires username and password parameters
         if grant_type == 'password':
             try:
                 username = request.POST['username']
             except KeyError:
                 try:
-                    username = request.POST['username']
+                    username = request.GET['username']
                 except KeyError:
                     raise UsernameRequiredException()
-
-        # password grant requires password parameter
-        if grant_type == 'password:
             try:
                 password = request.POST['password']
             except KeyError:
                 try:
-                    password = request.POST['password']
+                    password = request.ETassword']
                 except KeyError:
                     raise PasswordRequiredException()
 
@@ -153,7 +150,7 @@ def validate_request(view):
                 refresh_token = request.POST['refresh_token']
             except KeyError:
                 try:
-                    refresh_token = request.POST['refresh_token']
+                    refresh_token = request.GET['refresh_token']
                 except KeyError:
                     raise RefreshTokenRequiredException()
 
