@@ -35,23 +35,32 @@ def authentication_required(scope):
             if not 'HTTP_AUTHORIZATION' in request.META:
                 return False
 
-            auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(': ')
+            # Only Bearer tokens are supported for now
+            auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(' ')
             if auth_method.lower() != 'bearer':
                 return False
 
-            return auth
+            return base64.decodestring(auth)
 
         def _check_access_token_in_post(request):
             if not 'access_token' in request.POST:
                 return False
 
-            return request.POST['access_token']
+            return base64.decodestring(request.POST['access_token'])
+
+        def _check_access_token_in_get(request):
+            if not 'access_token' in request.GET:
+                return False
+
+            return base64.decodestring(request.GET['access_token'])
 
         def _arguments_wrapper(request, *args, **kwargs):
             access_token = _check_access_token_in_header(request=request)
             if not access_token:
                 access_token = _check_access_token_in_post(request=request)
-
+            if not access_token:
+                access_token = _check_access_token_in_get(request=request)
+                
             if not access_token:
                 raise AccessTokenRequiredException()
 
@@ -109,35 +118,59 @@ def validate_request(view):
             raise InvalidGrantTypeException()
 
         # authorization_code grant requires code parameter
-        if grant_type == 'authorization_code' and 'code' not in request.POST:
-            raise CodeRequiredException()
+        if grant_type == 'authorization_code':
+            try:
+                auth_code = request.POST['code']
+            except KeyError:
+                try:
+                    auth_code = request.POST['code']
+                except KeyError:
+                    raise CodeRequiredException()
 
         # password grant requires username parameter
-        if grant_type == 'password' and 'username' not in request.POST:
-            raise UsernameRequiredException()
+        if grant_type == 'password':
+            try:
+                username = request.POST['username']
+            except KeyError:
+                try:
+                    username = request.POST['username']
+                except KeyError:
+                    raise UsernameRequiredException()
 
         # password grant requires password parameter
-        if grant_type == 'password' and 'password' not in request.POST:
-            raise PasswordRequiredException()
+        if grant_type == 'password:
+            try:
+                password = request.POST['password']
+            except KeyError:
+                try:
+                    password = request.POST['password']
+                except KeyError:
+                    raise PasswordRequiredException()
 
         # refresh_token grant requires refresh_token parameter
-        if grant_type == 'refresh_token' and 'refresh_token' not in request.POST:
-            raise RefreshTokenRequiredException()
+        if grant_type == 'refresh_token':
+            try:
+                refresh_token = request.POST['refresh_token']
+            except KeyError:
+                try:
+                    refresh_token = request.POST['refresh_token']
+                except KeyError:
+                    raise RefreshTokenRequiredException()
 
         if grant_type == 'authorization_code':
             try:
                 request.auth_code = OAuthAuthorizationCode.objects.get(
-                    code=request.POST['code'])
+                    code=auth_code)
             except OAuthAuthorizationCode.DoesNotExist:
                 raise AuthorizationCodeNotFoundException()
 
         if grant_type == 'password':
             try:
-                user = OAuthUser.objects.get(email=request.POST['username'])
+                user = OAuthUser.objects.get(email=username)
             except OAuthUser.DoesNotExist:
                 raise InvalidUserCredentialsException()
 
-            if not user.verify_password(request.POST['password']):
+            if not user.verify_password(password):
                 raise InvalidUserCredentialsException()
 
             request.user = user
@@ -145,7 +178,7 @@ def validate_request(view):
         if grant_type == 'refresh_token':
             try:
                 request.refresh_token = OAuthRefreshToken.objects.get(
-                    refresh_token=request.POST['refresh_token'])
+                    refresh_token=refresh_token)
             except OAuthRefreshToken.DoesNotExist:
                 raise RefreshTokenNotFoundException()
 
@@ -167,20 +200,25 @@ def validate_request(view):
             if auth_method.lower() == 'basic':
                 client_id, client_secret = base64.b64decode(auth).split(':')
 
-        # Fallback to POST
-        if not client_id and 'client_id' in request.POST:
-            client_id = request.POST['client_id']
-        if not client_secret and 'client_secret' in request.POST:
-            client_secret = request.POST['client_secret']
-
+        # Fallback to POST and then to GET
         if not client_id or not client_secret:
-            raise ClientCredentialsRequiredException()
+            try:
+                client_id = request.POST['client_id']
+                client_secret = request.POST['client_secret']
+            except KeyError:
+                try:
+                    client_id = request.GET['client_id']
+                    client_secret = request.GET['client_secret']
+                except KeyError:
+                    raise ClientCredentialsRequiredException()
 
+        # Check client exists
         try:
             client = OAuthClient.objects.get(client_id=client_id)
         except OAuthClient.DoesNotExist:
             raise InvalidClientCredentialsException()
 
+        # And that client secret is correct
         if not client.verify_password(client_secret):
             raise InvalidClientCredentialsException()
 
@@ -188,7 +226,6 @@ def validate_request(view):
 
     def _wrapper(request, *args, **kwargs):
         _validate_grant_type(request=request)
-
         _extract_client(request=request)
 
         return view(request, *args, **kwargs)
