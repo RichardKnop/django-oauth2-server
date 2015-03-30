@@ -140,7 +140,7 @@ def validate_request(view):
                 password = request.POST['password']
             except KeyError:
                 try:
-                    password = request.ETassword']
+                    password = request.GET['password']
                 except KeyError:
                     raise PasswordRequiredException()
 
