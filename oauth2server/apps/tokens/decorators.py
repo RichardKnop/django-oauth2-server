@@ -40,19 +40,19 @@ def authentication_required(scope):
             if auth_method.lower() != 'bearer':
                 return False
 
-            return base64.decodestring(auth)
+            return auth
 
         def _check_access_token_in_post(request):
-            if not 'access_token' in request.POST:
+            if 'access_token' not in request.POST:
                 return False
 
-            return base64.decodestring(request.POST['access_token'])
+            return request.POST['access_token']
 
         def _check_access_token_in_get(request):
-            if not 'access_token' in request.GET:
+            if 'access_token' not in request.GET:
                 return False
 
-            return base64.decodestring(request.GET['access_token'])
+            return request.GET['access_token']
 
         def _arguments_wrapper(request, *args, **kwargs):
             access_token = _check_access_token_in_header(request=request)
