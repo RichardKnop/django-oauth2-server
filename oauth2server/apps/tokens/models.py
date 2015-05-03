@@ -20,9 +20,9 @@ class ExpiresMixin(models.Model):
     @property
     def expires_in(self):
         now = timezone.now()
-        if now() >= self.expires_at:
+        if now >= self.expires_at:
             return 0
-        return (self.expires_at - now).total_seconds()
+        return int(round((self.expires_at - now).total_seconds()))
 
     @classmethod
     def new_expires_at(cls):

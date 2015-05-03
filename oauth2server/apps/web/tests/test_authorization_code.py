@@ -145,7 +145,7 @@ class AuthorizationCodeTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['id'], access_token.pk)
         self.assertEqual(response.data['access_token'], access_token.access_token)
-        self.assertEqual(response.data['expires_at'], access_token.expires_at.isoformat())
+        self.assertEqual(response.data['expires_in'], 3600)
         self.assertEqual(response.data['token_type'], 'Bearer')
         self.assertEqual(response.data['scope'], 'foo bar qux')
         self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)

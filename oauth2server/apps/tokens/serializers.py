@@ -13,7 +13,7 @@ class OAuthAccessTokenSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'access_token',
-            'expires_at',
+            'expires_in',
             'token_type',
             'scope',
             'refresh_token',

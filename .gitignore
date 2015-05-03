@@ -1,5 +1,5 @@
 venv/
 *.pyc
 *.sqlite
-djangoserviceskeleton/proj/settings/local.py
+oauth2server/proj/settings/local.py
 .idea/
