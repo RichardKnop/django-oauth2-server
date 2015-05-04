@@ -280,15 +280,21 @@ $ python oauth2server/manage.py syncdb
 Configuration
 -------------
 
-These are the current configuration options: You can configure lifetime of tokens and codes (in seconds).
+These are the current configuration options:
 
 ```python
 OAUTH2_SERVER = {
     'ACCESS_TOKEN_LIFETIME': 3600,
     'AUTH_CODE_LIFETIME': 3600,
     'REFRESH_TOKEN_LIFETIME': 1209600,
+    'IGNORE_CLIENT_REQUESTED_SCOPE': False,
 }
 ```
+
+* ACCESS_TOKEN_LIFETIME: lifetime of an access token in seconds
+* AUTH_CODE_LIFETIME: lifetime of an authorization code in seconds
+* REFRESH_TOKEN_LIFETIME: lifetime of a refresh token in seconds
+* IGNORE_CLIENT_REQUESTED_SCOPE: if true, client requested scope will be ignored
 
 Running Tests
 -------------
