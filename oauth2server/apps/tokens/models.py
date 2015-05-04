@@ -33,11 +33,28 @@ class ExpiresMixin(models.Model):
         return timezone.now() + timezone.timedelta(seconds=lifetime)
 
 
+class OAuthScope(models.Model):
+    """
+    See http://tools.ietf.org/html/rfc6749#section-3.3
+    """
+
+    scope = models.CharField(max_length=200, unique=True)
+    description = models.TextField()
+    is_default = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.scope
+
+
 class TokenCodeMixin(models.Model):
 
-    scope = models.CharField(max_length=200, null=True)
+    scopes = models.ManyToManyField(OAuthScope)
     client = models.ForeignKey(OAuthClient)
     user = models.ForeignKey(OAuthUser, null=True)
+
+    @property
+    def scope(self):
+        return ' '.join([s.scope for s in self.scopes.all()])
 
     class Meta:
         abstract = True

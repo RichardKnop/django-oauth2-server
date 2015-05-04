@@ -14,7 +14,9 @@ from proj.exceptions import (
 
 def factory(request):
     if request.grant_type == 'client_credentials':
-        return ClientCredentialsGrantType(client=request.client)
+        return ClientCredentialsGrantType(
+            client=request.client,
+            scopes=request.scopes)
 
     if request.grant_type == 'authorization_code':
         return AuthorizationCodeGrantType(
@@ -24,78 +26,81 @@ def factory(request):
     if request.grant_type == 'password':
         return UserCredentialsGrantType(
             client=request.client,
-            user=request.user)
+            user=request.user,
+            scopes=request.scopes)
 
     if request.grant_type == 'refresh_token':
         return RefreshTokenGrantType(
             refresh_token=request.refresh_token)
 
 
-class ClientRequiredMixin(object):
-
-    def __init__(self, client):
-        self.client = client
-
-
 class CreateTokenMixin(object):
 
-    def create_access_token(self, client, user=None, scope=None):
+    def create_access_token(self, client, user=None):
         refresh_token = OAuthRefreshToken.objects.create(
             refresh_token=unicode(uuid.uuid4()),
             expires_at=OAuthRefreshToken.new_expires_at(),
         )
 
-        return OAuthAccessToken.objects.create(
+        access_token = OAuthAccessToken.objects.create(
             access_token=unicode(uuid.uuid4()),
             expires_at=OAuthAccessToken.new_expires_at(),
             client=client,
             user=user,
-            scope=scope if scope else settings.OAUTH2_SERVER['DEFAULT_SCOPE'],
             refresh_token=refresh_token,
         )
+        access_token.scopes.add(*self.scopes)
+
+        return access_token
 
 
-class ClientCredentialsGrantType(ClientRequiredMixin, CreateTokenMixin):
+class ClientCredentialsGrantType(CreateTokenMixin):
+
+    def __init__(self, client, scopes):
+        self.client = client
+        self.scopes = scopes
 
     def grant(self):
         return self.create_access_token(
             client=self.client)
 
 
-class UserCredentialsGrantType(ClientRequiredMixin, CreateTokenMixin):
+class UserCredentialsGrantType(CreateTokenMixin):
 
-    def __init__(self, client, user):
-        super(UserCredentialsGrantType, self).__init__(client=client)
+    def __init__(self, client, user, scopes):
+        self.client = client
         self.user = user
+        self.scopes = scopes
 
     def grant(self):
         return self.create_access_token(
             client=self.client, user=self.user)
 
 
-class AuthorizationCodeGrantType(ClientRequiredMixin, CreateTokenMixin):
+class AuthorizationCodeGrantType(CreateTokenMixin):
 
     def __init__(self, client, auth_code):
-        super(AuthorizationCodeGrantType, self).__init__(client=client)
+        self.client = client
         self.auth_code = auth_code
+        self.scopes = self.auth_code.scopes.all()
 
     def grant(self):
         if self.auth_code.is_expired():
             self.auth_code.delete()
             raise ExpiredAuthorizationCodeException()
 
-        access_token = self.create_access_token(
-            client=self.client, scope=self.auth_code.scope)
+        access_token = self.create_access_token(client=self.client)
 
         self.auth_code.delete()
 
         return access_token
 
 
-class RefreshTokenGrantType(ClientRequiredMixin, CreateTokenMixin):
+class RefreshTokenGrantType(CreateTokenMixin):
 
     def __init__(self, refresh_token):
         self.refresh_token = refresh_token
+        self.scopes = self.refresh_token.access_token.scopes.all()
 
     def grant(self):
         if self.refresh_token.is_expired():

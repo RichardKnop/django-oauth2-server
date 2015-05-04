@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from apps.web.decorators import validate_request
 from apps.web.responsetypes import factory
 from apps.web.forms import AuthorizeForm
-from apps.web import SCOPES
+from apps.tokens.models import OAuthScope
 
 
 class AuthorizeView(View):
@@ -42,4 +42,4 @@ class AuthorizeView(View):
     def _render(self, request, form):
         return HttpResponse(render(request, self.template_name, {
             'title': 'Authorize', 'client': request.client,
-            'form': form, 'scopes': SCOPES,}))
+            'form': form, 'scopes': OAuthScope.objects.all()}))

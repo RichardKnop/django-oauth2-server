@@ -8,13 +8,13 @@
 
         <p class="lead">Client <b>{{ client.client_id }}</b> would like to perform actions on your behalf</p>
 
-        {% for chunk in scopes.iteritems|chunk_evenly:3 %}
+        {% for chunk in scopes|chunk_evenly:3 %}
         <div class="row">
-            {% for scope_id, scope_desc in chunk %}
+            {% for scope in chunk %}
             <div class="col-md-4">
                 <p>
-                    <b><input type="checkbox" name="{{ form.scopes.name }}" value="{{ scope_id }}" checked> {{ scope_id }}</b>
-                    <br><small>{{ scope_desc }}</small>
+                    <b><input type="checkbox" name="{{ form.scopes.name }}" value="{{ scope.pk }}" checked> {{ scope.scope }}</b>
+                    <br><small>{{ scope.description }}</small>
                 </p>
             </div>
             {% endfor %}

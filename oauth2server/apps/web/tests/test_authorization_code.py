@@ -15,7 +15,10 @@ from apps.tokens.models import (
 
 class AuthorizationCodeTest(TestCase):
 
-    fixtures = ['test_credentials']
+    fixtures = [
+        'test_credentials',
+        'test_scopes',
+    ]
 
     def setUp(self):
         self.api_client = APIClient()
@@ -110,7 +113,7 @@ class AuthorizationCodeTest(TestCase):
             path='/web/authorize/?{}'.format(query_string),
             data={
                 'authorize': u'yes',
-                'scopes': [u'foo', u'bar', u'qux'],
+                'scopes': [u'1', u'2', u'3'],
             },
         )
 
@@ -166,7 +169,7 @@ class AuthorizationCodeTest(TestCase):
             path='/web/authorize/?{}'.format(query_string),
             data={
                 'authorize': u'yes',
-                'scopes': [u'foo', u'bar', u'qux'],
+                'scopes': [u'1', u'2', u'3'],
             },
         )
 

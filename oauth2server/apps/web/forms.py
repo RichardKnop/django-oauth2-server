@@ -1,10 +1,11 @@
 from django import forms
 
-from apps.web import SCOPE_CHOICES
+from apps.tokens.models import OAuthScope
 
 
 class AuthorizeForm(forms.Form):
 
     authorize = forms.BooleanField()
-    scopes = forms.MultipleChoiceField(
-        choices=SCOPE_CHOICES, widget=forms.CheckboxSelectMultiple)
+    scopes = forms.ModelMultipleChoiceField(
+        queryset=OAuthScope.objects.all(),
+        widget=forms.CheckboxSelectMultiple)

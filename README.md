@@ -8,11 +8,12 @@ Implementation of OAuth2 Server for Django. Feel free to fork this repository an
 Written for Django 1.7 :)
 
 - [Grant Types](https://github.com/RichardKnop/django-oauth2-server#grant-types)
-    - [Client Credentials](https://github.com/RichardKnop/django-oauth2-server#client-credentials)
     - [Authorization Code](https://github.com/RichardKnop/django-oauth2-server#authorization-code)
     - [Implicit](https://github.com/RichardKnop/django-oauth2-server#implicit)
+    - [Client Credentials](https://github.com/RichardKnop/django-oauth2-server#client-credentials)
     - [User Credentials](https://github.com/RichardKnop/django-oauth2-server#user-credentials)
     - [Refresh Token](https://github.com/RichardKnop/django-oauth2-server#refresh-token)
+- [Scope](https://github.com/RichardKnop/django-oauth2-server#scope)
 - [Authentication](https://github.com/RichardKnop/django-oauth2-server#authentication)
 - [Contributing](https://github.com/RichardKnop/django-oauth2-server#contributing)
     - [Installation](https://github.com/RichardKnop/django-oauth2-server#installation)
@@ -31,6 +32,7 @@ Insert test data:
 
 ```
 $ python oauth2server/manage.py loaddata test_credentials
+$ python oauth2server/manage.py loaddata test_scopes
 ```
 
 Run the development web server:
@@ -42,7 +44,7 @@ $ python oauth2server/manage.py runserver
 And you can now go to this page in your web browser:
 
 ```
-http://localhost:8000/authorize/?response_type=code&client_id=testclient&redirect_uri=https://www.example.com&state=somestate
+http://localhost:8000/web/authorize/?response_type=code&client_id=testclient&redirect_uri=https://www.example.com&state=somestate
 ```
 
 You should see a screen like this:
@@ -69,7 +71,7 @@ You should get a response like:
 {
     "id": 1,
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_at": "2015-03-28T20:12:55.319144",
+    "expires_in": 3600,
     "token_type": "Bearer",
     "scope": "foo bar qux",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -87,6 +89,7 @@ Insert test data:
 
 ```
 $ python oauth2server/manage.py loaddata test_credentials
+$ python oauth2server/manage.py loaddata test_scopes
 ```
 
 Run the development web server:
@@ -98,7 +101,7 @@ $ python oauth2server/manage.py runserver
 And you can now go to this page in your web browser:
 
 ```
-http://localhost:8080/authorize/?response_type=token&client_id=testclient&redirect_uri=https://www.example.com&state=somestate
+http://localhost:8080/web/authorize/?response_type=token&client_id=testclient&redirect_uri=https://www.example.com&state=somestate
 ```
 
 You should see a screen like this:
@@ -108,7 +111,7 @@ You should see a screen like this:
 Click yes, you will be redirected to the redirect_uri and the access token code will be in the URL fragment. For example:
 
 ```
-https://www.example.com#access_token=66b80fb9d6630705bcea1c9be0df2a5f7f7a52bf&expires_at=2015-03-27T18:38:02.381671&token_type=Bearer&state=somestate
+https://www.example.com#access_token=66b80fb9d6630705bcea1c9be0df2a5f7f7a52bf&expires_in=3600&token_type=Bearer&state=somestate
 ```
 
 User Credentials
@@ -120,6 +123,7 @@ Insert test data:
 
 ```
 $ python oauth2server/manage.py loaddata test_credentials
+$ python oauth2server/manage.py loaddata test_scopes
 ```
 
 Run the development web server:
@@ -140,7 +144,7 @@ You should get a response like:
 {
     "id": 1,
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_at": "2015-03-28T20:12:55.319144",
+    "expires_in": 3600,
     "token_type": "Bearer",
     "scope": "foo bar qux",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -156,6 +160,7 @@ Insert test data:
 
 ```
 $ python oauth2server/manage.py loaddata test_credentials
+$ python oauth2server/manage.py loaddata test_scopes
 ```
 
 Run the development web server:
@@ -182,7 +187,7 @@ You should get a response like:
 {
     "id": 1,
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_at": "2015-03-28T20:12:55.319144",
+    "expires_in": 3600,
     "token_type": "Bearer",
     "scope": "foo bar qux",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -204,12 +209,21 @@ And you get a new access token:
 {
     "id": 1,
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_at": "2015-03-28T20:12:55.319144",
+    "expires_in": 3600,
     "token_type": "Bearer",
     "scope": "foo bar qux",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
+
+Scope
+=====
+
+http://tools.ietf.org/html/rfc6749#section-3.3
+
+Scope is quite arbitrary. Basically it is a space delimited case-sensitive string where each part defines a specific access range.
+
+You can define your scopes and insert them into tokens_oauthscope table, is_default flag can be used to specify default scope.
 
 Authentication
 ==============
@@ -231,7 +245,7 @@ Contributing
 
 In order to contribute to this project, fork it and make a pull request. I will review and accept it.
 
-All tests must be passwing in order for the pull request to be accepted.
+All tests must be passing in order for the pull request to be accepted.
 
 Installation
 ------------
@@ -266,20 +280,13 @@ $ python oauth2server/manage.py syncdb
 Configuration
 -------------
 
-These are the current configuration options: You can configure lifetime of tokens and codes (in seconds) and also set authorization scope.
+These are the current configuration options: You can configure lifetime of tokens and codes (in seconds).
 
 ```python
 OAUTH2_SERVER = {
     'ACCESS_TOKEN_LIFETIME': 3600,
     'AUTH_CODE_LIFETIME': 3600,
     'REFRESH_TOKEN_LIFETIME': 1209600,
-    # http://tools.ietf.org/html/rfc6749#section-3.3
-    'SCOPES': {
-        'foo': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        'bar': 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
-        'qux': 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
-    },
-    'DEFAULT_SCOPE': 'foo bar qux',
 }
 ```
 

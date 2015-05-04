@@ -1,0 +1,29 @@
+[
+  {
+    "model": "tokens.OAuthScope",
+    "pk": 1,
+    "fields": {
+      "scope": "foo",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "is_default": true
+    }
+  },
+  {
+    "model": "tokens.OAuthScope",
+    "pk": 2,
+    "fields": {
+      "scope": "bar",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
+      "is_default": true
+    }
+  },
+  {
+    "model": "tokens.OAuthScope",
+    "pk": 3,
+    "fields": {
+      "scope": "qux",
+      "description": "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.",
+      "is_default": true
+    }
+  }
+]

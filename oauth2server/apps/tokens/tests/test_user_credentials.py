@@ -13,7 +13,10 @@ from apps.tokens.models import (
 
 class UserCredentialsTest(TestCase):
 
-    fixtures = ['test_credentials']
+    fixtures = [
+        'test_credentials',
+        'test_scopes',
+    ]
 
     def setUp(self):
         self.api_client = APIClient()
@@ -91,5 +94,5 @@ class UserCredentialsTest(TestCase):
         self.assertEqual(response.data['access_token'], access_token.access_token)
         self.assertEqual(response.data['expires_in'], 3600)
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(response.data['scope'], settings.OAUTH2_SERVER['DEFAULT_SCOPE'])
+        self.assertEqual(response.data['scope'], 'foo bar qux')
         self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)

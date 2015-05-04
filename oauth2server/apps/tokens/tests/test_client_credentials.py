@@ -3,7 +3,6 @@ import base64
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.test import TestCase
-from django.conf import settings
 
 from apps.tokens.models import (
     OAuthAccessToken,
@@ -13,7 +12,10 @@ from apps.tokens.models import (
 
 class ClientCredentialsTest(TestCase):
 
-    fixtures = ['test_credentials']
+    fixtures = [
+        'test_credentials',
+        'test_scopes',
+    ]
 
     def setUp(self):
         self.api_client = APIClient()
@@ -111,7 +113,7 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(response.data['access_token'], access_token.access_token)
         self.assertEqual(response.data['expires_in'], 3600)
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(response.data['scope'], settings.OAUTH2_SERVER['DEFAULT_SCOPE'])
+        self.assertEqual(response.data['scope'], 'foo bar qux')
         self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)
 
     def test_client_credentials_can_be_passed_in_post(self):
@@ -124,6 +126,7 @@ class ClientCredentialsTest(TestCase):
                 'grant_type': 'client_credentials',
                 'client_id': 'testclient',
                 'client_secret': 'testpassword',
+                'scope': 'foo qux'
             },
         )
 
@@ -139,5 +142,5 @@ class ClientCredentialsTest(TestCase):
         self.assertEqual(response.data['access_token'], access_token.access_token)
         self.assertEqual(response.data['expires_in'], 3600)
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(response.data['scope'], settings.OAUTH2_SERVER['DEFAULT_SCOPE'])
+        self.assertEqual(response.data['scope'], 'foo qux')
         self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)

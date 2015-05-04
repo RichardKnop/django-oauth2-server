@@ -24,6 +24,7 @@ class AbstractResponseType(object):
             'error_description': u'The user denied access to your application',
             'state': state,
         })
+
         return HttpResponseRedirect('{}?{}'.format(
             redirect_uri, query_string))
 
@@ -39,9 +40,10 @@ class CodeResponseType(AbstractResponseType):
             code=unicode(uuid.uuid4()),
             expires_at=OAuthAuthorizationCode.new_expires_at(),
             client=client,
-            scope=' '.join(scopes),
             redirect_uri=redirect_uri,
         )
+        auth_code.scopes.add(*scopes)
+
         query_string = urllib.urlencode({
             'code': auth_code.code,
             'state': state,
@@ -62,11 +64,12 @@ class ImplicitResponseType(AbstractResponseType):
             access_token=unicode(uuid.uuid4()),
             expires_at=OAuthAccessToken.new_expires_at(),
             client=client,
-            scope=' '.join(scopes),
         )
+        access_token.scopes.add(*scopes)
+
         return HttpResponseRedirect(
-            '{}#access_token={}&expires_at={}'
+            '{}#access_token={}&expires_in={}'
             '&token_type=Bearer&state={}'.format(
                 redirect_uri, access_token.access_token,
-                urllib.quote(unicode(access_token.expires_at)), state,
+                access_token.expires_in, state,
         ))

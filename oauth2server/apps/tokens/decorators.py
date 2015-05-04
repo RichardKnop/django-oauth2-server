@@ -1,5 +1,7 @@
 import base64
 
+from django.conf import settings
+
 from apps.credentials.models import (
     OAuthClient,
     OAuthUser,
@@ -8,6 +10,7 @@ from apps.tokens.models import (
     OAuthAuthorizationCode,
     OAuthAccessToken,
     OAuthRefreshToken,
+    OAuthScope,
 )
 from proj.exceptions import (
     GrantTypeRequiredException,
@@ -221,9 +224,38 @@ def validate_request(view):
 
         request.client = client
 
+    def _extract_scope(request):
+        """
+        Tries to extract authorization scope from the request.
+        Appropriate scope models are fetched from the database
+        and assigned to the request.
+        :param request:
+        :return:
+        """
+        if settings.IGNORE_CLIENT_REQUESTED_SCOPE:
+            return
+
+        if request.grant_type not in ('client_credentials', 'password', 'authorization_code'):
+            return
+
+        try:
+            scopes = request.POST['scope'].split(' ')
+        except KeyError:
+            try:
+                scopes = request.GET['scope'].split(' ')
+            except KeyError:
+                scopes = []
+
+        request.scopes = OAuthScope.objects.filter(scope__in=scopes)
+
+        # Fallback to the default scope if no scope sent with the request
+        if len(request.scopes) == 0:
+            request.scopes = OAuthScope.objects.filter(is_default=True)
+
     def _wrapper(request, *args, **kwargs):
         _validate_grant_type(request=request)
         _extract_client(request=request)
+        _extract_scope(request=request)
 
         return view(request, *args, **kwargs)
 

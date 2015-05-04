@@ -11,7 +11,10 @@ from apps.tokens.models import (
 
 class ImplicitTest(TestCase):
 
-    fixtures = ['test_credentials']
+    fixtures = [
+        'test_credentials',
+        'test_scopes',
+    ]
 
     def setUp(self):
         self.api_client = APIClient()
@@ -29,7 +32,7 @@ class ImplicitTest(TestCase):
             path='/web/authorize/?{}'.format(query_string),
             data={
                 'authorize': u'yes',
-                'scopes': [u'foo', u'bar', u'qux'],
+                'scopes': [u'1', u'2', u'3'],
             },
         )
 
@@ -40,10 +43,9 @@ class ImplicitTest(TestCase):
 
         self.assertRedirects(
             response,
-            'http://www.example.com#access_token={}&expires_at={}'
+            'http://www.example.com#access_token={}&expires_in={}'
             '&token_type=Bearer&state=somestate'.format(
-                access_token.access_token,
-                urllib.quote(unicode(access_token.expires_at)),
+                access_token.access_token, access_token.expires_in,
             ),
             fetch_redirect_response=False,
         )
