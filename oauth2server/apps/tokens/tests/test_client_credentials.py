@@ -126,7 +126,7 @@ class ClientCredentialsTest(TestCase):
                 'grant_type': 'client_credentials',
                 'client_id': 'testclient',
                 'client_secret': 'testpassword',
-                'scope': 'foo qux'
+                'scope': 'foo qux',
             },
         )
 

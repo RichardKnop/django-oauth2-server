@@ -232,10 +232,11 @@ def validate_request(view):
         :param request:
         :return:
         """
-        if settings.IGNORE_CLIENT_REQUESTED_SCOPE:
+        if request.grant_type not in ('client_credentials', 'password'):
             return
 
-        if request.grant_type not in ('client_credentials', 'password', 'authorization_code'):
+        if settings.OAUTH2_SERVER['IGNORE_CLIENT_REQUESTED_SCOPE']:
+            request.scopes = OAuthScope.objects.filter(is_default=True)
             return
 
         try:
