@@ -77,6 +77,8 @@ class UserCredentialsTest(TestCase):
                 base64.encodestring('testclient:testpassword')),
         )
 
+        self.assertEqual(OAuthAccessToken.objects.count(), 1)
+        self.assertEqual(OAuthRefreshToken.objects.count(), 1)
         access_token = OAuthAccessToken.objects.last()
         refresh_token = OAuthRefreshToken.objects.last()
 

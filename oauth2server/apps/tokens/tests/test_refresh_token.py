@@ -100,8 +100,8 @@ class RefreshTokenTest(TestCase):
         access_token = OAuthAccessToken.objects.last()
         refresh_token = OAuthRefreshToken.objects.last()
 
-        self.assertNotEqual(access_token, '00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c')
-        self.assertNotEqual(refresh_token, '6fd8d272-375a-4d8a-8d0f-43367dc8b791')
+        self.assertNotEqual(access_token.access_token, '00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c')
+        self.assertNotEqual(refresh_token.refresh_token, '6fd8d272-375a-4d8a-8d0f-43367dc8b791')
 
         self.assertEqual(access_token.refresh_token, refresh_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -111,3 +111,35 @@ class RefreshTokenTest(TestCase):
         self.assertEqual(response.data['token_type'], 'Bearer')
         self.assertEqual(response.data['scope'], settings.OAUTH2_SERVER['DEFAULT_SCOPE'])
         self.assertEqual(response.data['refresh_token'], refresh_token.refresh_token)
+
+    def test_refresh_user_token(self):
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'password',
+                'username': 'john@doe.com',
+                'password': 'testpassword',
+            },
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        user_access_token = OAuthAccessToken.objects.last()
+
+        response = self.api_client.post(
+            path='/api/v1/tokens/',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': response.data['refresh_token'],
+            },
+            HTTP_AUTHORIZATION='Basic: {}'.format(
+                base64.encodestring('testclient:testpassword')),
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        refreshed_access_token = OAuthAccessToken.objects.last()
+
+        self.assertNotEqual(refreshed_access_token.access_token, user_access_token.access_token)
+        self.assertEqual(refreshed_access_token.client.client_id, 'testclient')
+        self.assertEqual(refreshed_access_token.user.email, 'john@doe.com')

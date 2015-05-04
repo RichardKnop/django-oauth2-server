@@ -103,7 +103,8 @@ class RefreshTokenGrantType(ClientRequiredMixin, CreateTokenMixin):
             raise ExpiredRefreshTokenException()
 
         access_token = self.create_access_token(
-            client=self.refresh_token.access_token.client)
+            client=self.refresh_token.access_token.client,
+            user=self.refresh_token.access_token.user)
 
         self.refresh_token.access_token.delete()
         self.refresh_token.delete()
