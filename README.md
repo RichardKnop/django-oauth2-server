@@ -302,5 +302,3 @@ Running Tests
 ```
 $ python oauth2server/manage.py test
 ```
-
-Functional tests are using SQLite database for performance reasons.

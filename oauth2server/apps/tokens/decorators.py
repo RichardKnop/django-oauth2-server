@@ -1,5 +1,7 @@
 import base64
+from functools import wraps
 
+from django.utils.decorators import available_attrs
 from django.conf import settings
 
 from apps.credentials.models import (
@@ -32,43 +34,49 @@ from proj.exceptions import (
 
 
 def authentication_required(scope):
-    def _method_wrapper(view):
+    """
+    Validates access token and priviliges before processing the view
+    :param func:
+    :return: decorator
+    """
+    def _check_access_token_in_header(request):
+        if not 'HTTP_AUTHORIZATION' in request.META:
+            return False
 
-        def _check_access_token_in_header(request):
-            if not 'HTTP_AUTHORIZATION' in request.META:
-                return False
+        # Only Bearer tokens are supported for now
+        auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(' ')
+        if auth_method.lower() != 'bearer':
+            return False
 
-            # Only Bearer tokens are supported for now
-            auth_method, auth = request.META['HTTP_AUTHORIZATION'].split(' ')
-            if auth_method.lower() != 'bearer':
-                return False
+        return auth
 
-            return auth
+    def _check_access_token_in_post(request):
+        if 'access_token' not in request.POST:
+            return False
 
-        def _check_access_token_in_post(request):
-            if 'access_token' not in request.POST:
-                return False
+        return request.POST['access_token']
 
-            return request.POST['access_token']
+    def _check_access_token_in_get(request):
+        if 'access_token' not in request.GET:
+            return False
 
-        def _check_access_token_in_get(request):
-            if 'access_token' not in request.GET:
-                return False
+        return request.GET['access_token']
 
-            return request.GET['access_token']
+    def decorator(func):
+        @wraps(func, assigned=available_attrs(func))
+        def inner(request, *args, **kwargs):
 
-        def _arguments_wrapper(request, *args, **kwargs):
             access_token = _check_access_token_in_header(request=request)
             if not access_token:
                 access_token = _check_access_token_in_post(request=request)
             if not access_token:
                 access_token = _check_access_token_in_get(request=request)
-                
+
             if not access_token:
                 raise AccessTokenRequiredException()
 
             try:
-                access_token = OAuthAccessToken.object.get(
+                access_token = OAuthAccessToken.objects.get(
                     access_token=access_token)
             except OAuthAccessToken.DoesNotExist:
                 raise InvalidAccessTokenException()
@@ -80,18 +88,18 @@ def authentication_required(scope):
                 raise InsufficientScopeException()
 
             request.access_token = access_token
-            return view(request, *args, **kwargs)
+            return func(request, *args, **kwargs)
 
-        return _arguments_wrapper
+        return inner
 
-    return _method_wrapper
+    return decorator
 
 
-def validate_request(view):
+def validate_request(func):
     """
     Validates that request contains all required data
-    :param view:
-    :return: _wrapper
+    :param func:
+    :return: decorator
     """
 
     def _validate_grant_type(request):
@@ -253,11 +261,11 @@ def validate_request(view):
         if len(request.scopes) == 0:
             request.scopes = OAuthScope.objects.filter(is_default=True)
 
-    def _wrapper(request, *args, **kwargs):
+    def decorator(request, *args, **kwargs):
         _validate_grant_type(request=request)
         _extract_client(request=request)
         _extract_scope(request=request)
 
-        return view(request, *args, **kwargs)
+        return func(request, *args, **kwargs)
 
-    return _wrapper
+    return decorator
