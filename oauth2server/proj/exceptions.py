@@ -107,7 +107,7 @@ class RefreshTokenNotFoundException(APIException):
     default_detail = _(u'Refresh token not found')
 
 
-def custom_exception_handler(exc):
+def custom_exception_handler(exc, context):
     """
     Formats REST exceptions like:
     {
@@ -117,7 +117,9 @@ def custom_exception_handler(exc):
     :param exc: Exception
     :return: Response
     """
-    response = exception_handler(exc)
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
 
     if not response:
         # Unhandled exceptions (500 internal server errors)
