@@ -49,7 +49,7 @@ http://localhost:8000/web/authorize/?response_type=code&client_id=testclient&red
 
 You should see a screen like this:
 
-![Authorization page screenshot](https://github.com/RichardKnop/django-oauth2-server/blob/master/assets/authorize_screenshot.png)
+![Authorization page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/django-oauth2-server/authorize_screenshot.png)
 
 Click yes, you will be redirected to the redirect_uri and the authorization code will be in the query string. For example:
 
@@ -106,7 +106,7 @@ http://localhost:8080/web/authorize/?response_type=token&client_id=testclient&re
 
 You should see a screen like this:
 
-![Authorization page screenshot](https://github.com/RichardKnop/django-oauth2-server/blob/master/assets/authorize_screenshot.png)
+![Authorization page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/django-oauth2-server/authorize_screenshot.png)
 
 Click yes, you will be redirected to the redirect_uri and the access token code will be in the URL fragment. For example:
 
