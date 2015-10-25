@@ -5,10 +5,10 @@
 # (notably BSD), and has no known weaknesses.
 # See: http://pythonhosted.org/passlib/lib/passlib.hash.bcrypt.html
 
-from passlib.hash import bcrypt
-
 from django.db import models
 from django.core.validators import EmailValidator, ValidationError
+
+from apps.credentials import pwd_context
 
 
 class OAuthCredentials(models.Model):
@@ -20,13 +20,13 @@ class OAuthCredentials(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk is None:
-            self.password = bcrypt.encrypt(self.password)
-        elif bcrypt.identify(self.password) is False:
-            self.password = bcrypt.encrypt(self.password)
+            self.password = pwd_context.encrypt(secret=self.password)
+        elif not pwd_context.identify(hash=self.password):
+            self.password = pwd_context.encrypt(secret=self.password)
         super(OAuthCredentials, self).save(*args, **kwargs)
 
     def verify_password(self, raw_password):
-        return bcrypt.verify(raw_password, self.password)
+        return pwd_context.verify(secret=raw_password, hash=self.password)
 
 
 class OAuthUser(OAuthCredentials):
