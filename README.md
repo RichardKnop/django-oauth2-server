@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/RichardKnop/django-oauth2-server.svg?branch=master)
+[![Build Status](https://travis-ci.org/RichardKnop/django-oauth2-server.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/django-oauth2-server)
 
 Django OAuth2 Server
 ====================
