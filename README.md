@@ -1,3 +1,5 @@
+[![Codeship Status for RichardKnop/go-oauth2-server](https://codeship.com/projects/38e5cdb0-71b0-0133-b926-06b1c29ec1d7/status?branch=master)](https://codeship.com/projects/116440)
+
 [![Travis Status for RichardKnop/django-oauth2-server](https://travis-ci.org/RichardKnop/django-oauth2-server.svg?branch=master)](https://travis-ci.org/RichardKnop/django-oauth2-server)
 
 Django OAuth2 Server
