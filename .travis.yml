@@ -4,7 +4,6 @@ python:
 env:
   - DJANGO=1.8 DB=postgres
 services:
-  - rabbitmq
   - memcached
 branches:
   only:
