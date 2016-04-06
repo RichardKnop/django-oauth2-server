@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from apps.web.views import AuthorizeView
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url('^authorize/?', AuthorizeView.as_view(), name='authorize'),
-)
+]

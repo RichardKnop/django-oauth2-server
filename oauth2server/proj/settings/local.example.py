@@ -11,8 +11,8 @@ SECRET_KEY = 'tbd(pv7679n_w-t++*s_*oon&#v0ubhkxhzvlq51ko2+=dt*z#'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'oauth2server',
-        'USER': 'postgres',
+        'NAME': 'django_oauth2_server',
+        'USER': 'django_oauth2_server',
         'PASSWORD': '',
         'HOST': '',
     },
