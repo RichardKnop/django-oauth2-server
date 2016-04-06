@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 env:
-  - DJANGO=1.8 DB=postgres
+  - DJANGO=1.9 DB=postgres
 branches:
   only:
     - develop
@@ -13,9 +13,10 @@ cache:
 install:
   - pip install -r requirements.txt
 before_script:
-  - psql -c 'create database oauth2server;' -U postgres
+  - createuser --createdb django_oauth2_server
+  - createdb -U django_oauth2_server django_oauth2_server
   - cp oauth2server/proj/settings/local.example.py oauth2server/proj/settings/local.py
   - cd oauth2server
-  - python manage.py syncdb --noinput
+  - python manage.py migrate
 script:
   - python manage.py test
