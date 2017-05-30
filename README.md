@@ -1,6 +1,7 @@
-[![Codeship Status for RichardKnop/go-oauth2-server](https://codeship.com/projects/38e5cdb0-71b0-0133-b926-06b1c29ec1d7/status?branch=master)](https://codeship.com/projects/116440)
+[![Codeship Status for RichardKnop/django-oauth2-server](https://app.codeship.com/projects/38e5cdb0-71b0-0133-b926-06b1c29ec1d7/status?branch=master)](https://app.codeship.com/projects/116977)
 
 [![Travis Status for RichardKnop/django-oauth2-server](https://travis-ci.org/RichardKnop/django-oauth2-server.svg?branch=master)](https://travis-ci.org/RichardKnop/django-oauth2-server)
+[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://richardknop.github.io/donate/)
 
 Django OAuth2 Server
 ====================
